@@ -8,7 +8,7 @@
 
 size_t SizeOfSet (const bitset<30>& v)
 {
-    return (stream_size_of (v));
+    return stream_size_of (v);
 }
 
 void TestBitset (void)

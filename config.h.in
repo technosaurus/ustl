@@ -58,8 +58,11 @@
     #define HAVE_CPP11 1
 #endif
 #if !HAVE_CPP11
-    #define noexcept		throw()
     #define constexpr
+    #define override
+    #define final
+    #define nullptr		NULL
+    #define noexcept		throw()
 #endif
 #if __GNUC__ >= 3 && (__i386__ || __x86_64__)
     /// GCC 3+ supports the prefetch directive, which some CPUs use to improve caching

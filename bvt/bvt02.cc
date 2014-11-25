@@ -40,7 +40,7 @@ void TestMB (void)
     if (!(a == b))
 	cout << "operator== failed on memblock\n";
     b.copy_link();
-    if (b.data() == NULL || b.cdata() == cstrTest)
+    if (b.data() == nullptr || b.cdata() == cstrTest)
 	cout << "copy_link failed on memblock\n";
     if (!(a == b))
 	cout << "copy_link didn't copy\n";

@@ -24,7 +24,7 @@ namespace ustl {
 #endif
 
 /// Returns the end() for a static vector
-template <typename T, size_t N> inline constexpr T* VectorEnd (T(&a)[N]) { return (&a[N]); }
+template <typename T, size_t N> inline constexpr T* VectorEnd (T(&a)[N]) { return &a[N]; }
 
 /// Expands into a ptr,size expression for the given static vector; useful as link arguments.
 #define VectorBlock(v)	&(v)[0], VectorSize(v)
@@ -67,19 +67,19 @@ template <typename T, size_t N> inline constexpr T* VectorEnd (T(&a)[N]) { retur
 template <typename T1, typename T2>
 inline constexpr T1 min (const T1& a, const T2& b)
 {
-    return (a < b ? a : b);
+    return a < b ? a : b;
 }
 
 /// Returns the maximum of \p a and \p b
 template <typename T1, typename T2>
 inline constexpr T1 max (const T1& a, const T2& b)
 {
-    return (b < a ? a : b);
+    return b < a ? a : b;
 }
 
 /// Indexes into a static array with bounds limit
 template <typename T, size_t N>
-inline constexpr T& VectorElement (T(&v)[N], size_t i) { return (v[min(i,N-1)]); }
+inline constexpr T& VectorElement (T(&v)[N], size_t i) { return v[min(i,N-1)]; }
 
 /// The alignment performed by default.
 const size_t c_DefaultAlignment = __alignof__(void*);
@@ -87,37 +87,37 @@ const size_t c_DefaultAlignment = __alignof__(void*);
 /// \brief Rounds \p n up to be divisible by \p grain
 template <typename T>
 inline constexpr T AlignDown (T n, size_t grain = c_DefaultAlignment)
-    { return (n - n % grain); }
+    { return n - n % grain; }
 
 /// \brief Rounds \p n up to be divisible by \p grain
 template <typename T>
 inline constexpr T Align (T n, size_t grain = c_DefaultAlignment)
-    { return (AlignDown (n + grain - 1, grain)); }
+    { return AlignDown (n + grain - 1, grain); }
 
-/// Returns a NULL pointer cast to T.
+/// Returns a nullptr pointer cast to T.
 template <typename T>
 inline constexpr T* NullPointer (void)
-    { return ((T*) NULL); }
+    { return nullptr; }
 
 /// \brief Returns a non-dereferentiable value reference.
 /// This is useful for passing to stream_align_of or the like which need a value but
 /// don't need to actually use it.
 template <typename T>
 inline constexpr T& NullValue (void)
-    { return (*NullPointer<T>()); }
+    { return *NullPointer<T>(); }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 // Offsets a pointer
 template <typename T>
 inline T advance_ptr (T i, ptrdiff_t offset)
-    { return (i + offset); }
+    { return i + offset; }
 
 // Offsets a void pointer
 template <>
 inline const void* advance_ptr (const void* p, ptrdiff_t offset)
 {
     assert (p || !offset);
-    return (reinterpret_cast<const uint8_t*>(p) + offset);
+    return reinterpret_cast<const uint8_t*>(p) + offset;
 }
 
 // Offsets a void pointer
@@ -125,26 +125,26 @@ template <>
 inline void* advance_ptr (void* p, ptrdiff_t offset)
 {
     assert (p || !offset);
-    return (reinterpret_cast<uint8_t*>(p) + offset);
+    return reinterpret_cast<uint8_t*>(p) + offset;
 }
 #endif
 
 /// Offsets an iterator
 template <typename T, typename Distance>
 inline T advance (T i, Distance offset)
-    { return (advance_ptr (i, offset)); }
+    { return advance_ptr (i, offset); }
 
 /// Returns the difference \p p1 - \p p2
 template <typename T1, typename T2>
 inline constexpr ptrdiff_t distance (T1 i1, T2 i2)
 {
-    return (i2 - i1);
+    return i2 - i1;
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 #define UNVOID_DISTANCE(T1const,T2const)   \
 template <> inline constexpr ptrdiff_t distance (T1const void* p1, T2const void* p2) \
-{ return ((T2const uint8_t*)(p2) - (T1const uint8_t*)(p1)); }
+{ return (T2const uint8_t*)(p2) - (T1const uint8_t*)(p1); }
 UNVOID_DISTANCE(,)
 UNVOID_DISTANCE(const,const)
 UNVOID_DISTANCE(,const)
@@ -154,10 +154,10 @@ UNVOID_DISTANCE(const,)
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 // The compiler issues a warning if an unsigned type is compared to 0.
-template <typename T, bool IsSigned> struct __is_negative { inline constexpr bool operator()(const T& v) { return (v < 0); } };
-template <typename T> struct __is_negative<T,false> { inline constexpr bool operator()(const T&) { return (false); } };
+template <typename T, bool IsSigned> struct __is_negative { inline constexpr bool operator()(const T& v) { return v < 0; } };
+template <typename T> struct __is_negative<T,false> { inline constexpr bool operator()(const T&) { return false; } };
 /// Warning-free way to check if \p v is negative, even if for unsigned types.
-template <typename T> inline constexpr bool is_negative (const T& v) { return (__is_negative<T,numeric_limits<T>::is_signed>()(v)); }
+template <typename T> inline constexpr bool is_negative (const T& v) { return __is_negative<T,numeric_limits<T>::is_signed>()(v); }
 #endif
 
 /// \brief Returns the absolute value of \p v
@@ -165,28 +165,28 @@ template <typename T> inline constexpr bool is_negative (const T& v) { return (_
 template <typename T>
 inline constexpr T absv (T v)
 {
-    return (is_negative(v) ? -v : v);
+    return is_negative(v) ? -v : v;
 }
 
 /// \brief Returns -1 for negative values, 1 for positive, and 0 for 0
 template <typename T>
 inline constexpr T sign (T v)
 {
-    return ((0 < v) - is_negative(v));
+    return (0 < v) - is_negative(v);
 }
 
 /// Returns the absolute value of the distance i1 and i2
 template <typename T1, typename T2>
 inline constexpr size_t abs_distance (T1 i1, T2 i2)
 {
-    return (absv (distance(i1, i2)));
+    return absv (distance(i1, i2));
 }
 
 /// Returns the size of \p n elements of size \p T
 template <typename T>
 inline constexpr size_t size_of_elements (size_t n, const T*)
 {
-    return (n * sizeof(T));
+    return n * sizeof(T);
 }
 
 // Defined in byteswap.h, which is usually unusable.
@@ -200,7 +200,7 @@ inline uint16_t bswap_16 (uint16_t v)
     if (!__builtin_constant_p(v)) asm ("rorw $8, %0":"+r"(v)); else
 #endif
 	v = v << 8 | v >> 8;
-    return (v);
+    return v;
 }
 inline uint32_t bswap_32 (uint32_t v)
 {
@@ -208,7 +208,7 @@ inline uint32_t bswap_32 (uint32_t v)
     if (!__builtin_constant_p(v)) asm ("bswap %0":"+r"(v)); else
 #endif
 	v = v << 24 | (v & 0xFF00) << 8 | ((v >> 8) & 0xFF00) | v >> 24;
-    return (v);
+    return v;
 }
 #if HAVE_INT64_T
 inline uint64_t bswap_64 (uint64_t v)
@@ -217,7 +217,7 @@ inline uint64_t bswap_64 (uint64_t v)
     if (!__builtin_constant_p(v)) asm ("bswap %0":"+r"(v)); else
 #endif
 	v = (uint64_t(bswap_32(v)) << 32) | bswap_32(v >> 32);
-    return (v);
+    return v;
 }
 #endif
 
@@ -226,62 +226,62 @@ template <typename T>
 inline T bswap (const T& v)
 {
     switch (BitsInType(T)) {
-	default:	return (v);
-	case 16:	return (T (bswap_16 (uint16_t (v))));
-	case 32:	return (T (bswap_32 (uint32_t (v))));
+	default:	return v;
+	case 16:	return T (bswap_16 (uint16_t (v)));
+	case 32:	return T (bswap_32 (uint32_t (v)));
 #if HAVE_INT64_T
-	case 64:	return (T (bswap_64 (uint64_t (v))));
+	case 64:	return T (bswap_64 (uint64_t (v)));
 #endif
     }
 }
 
 #if BYTE_ORDER == BIG_ENDIAN
-template <typename T> inline T le_to_native (const T& v) { return (bswap (v)); }
-template <typename T> inline T be_to_native (const T& v) { return (v); }
-template <typename T> inline T native_to_le (const T& v) { return (bswap (v)); }
-template <typename T> inline T native_to_be (const T& v) { return (v); }
+template <typename T> inline T le_to_native (const T& v) { return bswap (v); }
+template <typename T> inline T be_to_native (const T& v) { return v; }
+template <typename T> inline T native_to_le (const T& v) { return bswap (v); }
+template <typename T> inline T native_to_be (const T& v) { return v; }
 #elif BYTE_ORDER == LITTLE_ENDIAN
-template <typename T> inline T le_to_native (const T& v) { return (v); }
-template <typename T> inline T be_to_native (const T& v) { return (bswap (v)); }
-template <typename T> inline T native_to_le (const T& v) { return (v); }
-template <typename T> inline T native_to_be (const T& v) { return (bswap (v)); }
+template <typename T> inline T le_to_native (const T& v) { return v; }
+template <typename T> inline T be_to_native (const T& v) { return bswap (v); }
+template <typename T> inline T native_to_le (const T& v) { return v; }
+template <typename T> inline T native_to_be (const T& v) { return bswap (v); }
 #endif // BYTE_ORDER
 
-/// Deletes \p p and sets it to NULL
+/// Deletes \p p and sets it to nullptr
 template <typename T>
 inline void Delete (T*& p)
 {
     delete p;
-    p = NULL;
+    p = nullptr;
 }
 
-/// Deletes \p p as an array and sets it to NULL
+/// Deletes \p p as an array and sets it to nullptr
 template <typename T>
 inline void DeleteVector (T*& p)
 {
     delete [] p;
-    p = NULL;
+    p = nullptr;
 }
 
 /// Template of making != from ! and ==
 template <typename T>
 inline constexpr bool operator!= (const T& x, const T& y)
-    { return (!(x == y)); }
+    { return !(x == y); }
 
 /// Template of making > from <
 template <typename T>
 inline constexpr bool operator> (const T& x, const T& y)
-    { return (y < x); }
+    { return y < x; }
 
 /// Template of making <= from < and ==
 template <typename T>
 inline constexpr bool operator<= (const T& x, const T& y)
-    { return (!(y < x)); }
+    { return !(y < x); }
 
 /// Template of making >= from < and ==
 template <typename T>
 inline constexpr bool operator>= (const T& x, const T& y)
-    { return (!(x < y)); }
+    { return !(x < y); }
 
 /// Packs \p s multiple times into \p b. Useful for loop unrolling.
 template <typename TSmall, typename TBig>
@@ -300,7 +300,7 @@ inline T1 DivRU (T1 n1, T2 n2)
     T2 adj = n2 - 1;
     if (is_negative (n1))
 	adj = -adj;
-    return ((n1 + adj) / n2);
+    return (n1 + adj) / n2;
 }
 
 /// Sets the contents of \p pm to 1 and returns true if the previous value was 0.
@@ -315,19 +315,19 @@ inline bool TestAndSet (int* pm)
 	: "=a" (rv), "=m" (*pm), "=r" (oldVal)
 	: "2" (oldVal), "a" (0)
 	: "memory");
-    return (rv);
+    return rv;
 #elif __i386__ || __x86_64__
     int oldVal (1);
     asm volatile ("xchgl %0, %1" : "=r"(oldVal), "=m"(*pm) : "0"(oldVal), "m"(*pm) : "memory");
-    return (!oldVal);
+    return !oldVal;
 #elif __sparc32__	// This has not been tested
     int rv;
     asm volatile ("ldstub %1, %0" : "=r"(rv), "=m"(*pm) : "m"(pm));
-    return (!rv);
+    return !rv;
 #else
     const int oldVal (*pm);
     *pm = 1;
-    return (!oldVal);
+    return !oldVal;
 #endif
 }
 
@@ -343,7 +343,7 @@ inline uoff_t FirstBit (uint32_t v, uoff_t nbv)
 #else
     if (v) for (uint32_t m = uint32_t(1)<<(n=31); !(v & m); m >>= 1) --n;
 #endif
-    return (n);
+    return n;
 }
 /// Returns the index of the first set bit in \p v or \p nbv if none.
 inline uoff_t FirstBit (uint64_t v, uoff_t nbv)
@@ -357,7 +357,7 @@ inline uoff_t FirstBit (uint64_t v, uoff_t nbv)
 #else
     if (v) for (uint64_t m = uint64_t(1)<<(n=63); !(v & m); m >>= 1) --n;
 #endif
-    return (n);
+    return n;
 }
 
 /// Returns the next power of 2 >= \p v.
@@ -369,7 +369,7 @@ inline uint32_t NextPow2 (uint32_t v)
     if (!__builtin_constant_p(r)) asm("bsr\t%0, %0":"+r"(r)); else
 #endif
     { r = FirstBit(r,r); if (r >= BitsInType(r)-1) r = uint32_t(-1); }
-    return (1<<(1+r));
+    return 1<<(1+r);
 }
 
 /// Bitwise rotate value left
@@ -380,7 +380,7 @@ inline T Rol (T v, size_t n)
     if (!(__builtin_constant_p(v) && __builtin_constant_p(n))) asm("rol\t%b1, %0":"+r,r"(v):"i,c"(n)); else
 #endif
     v = (v << n) | (v >> (BitsInType(T)-n));
-    return (v);
+    return v;
 }
 
 /// Bitwise rotate value right
@@ -391,7 +391,7 @@ inline T Ror (T v, size_t n)
     if (!(__builtin_constant_p(v) && __builtin_constant_p(n))) asm("ror\t%b1, %0":"+r,r"(v):"i,c"(n)); else
 #endif
     v = (v >> n) | (v << (BitsInType(T)-n));
-    return (v);
+    return v;
 }
 
 /// \brief This template is to be used for dereferencing a type-punned pointer without a warning.
@@ -410,7 +410,7 @@ inline DEST noalias (const DEST&, SRC* s)
 {
     asm("":"+g"(s)::"memory");
     union UPun { SRC s; DEST d; };
-    return (((UPun*)(s))->d);
+    return ((UPun*)(s))->d;
 }
 
 template <typename DEST, typename SRC>
@@ -418,7 +418,7 @@ inline DEST noalias_cast (SRC s)
 {
     asm("":"+g"(s)::"memory");
     union { SRC s; DEST d; } u = {s};
-    return (u.d);
+    return u.d;
 }
 
 namespace simd {

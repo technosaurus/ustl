@@ -68,5 +68,5 @@ int StdTestHarness (stdtestfunc_t testFunction)
 	cout.flush();
 	cerr << "Unexpected error." << endl;
     }
-    return (rv);
+    return rv;
 }

@@ -14,16 +14,16 @@ const char ios_base::c_DefaultDelimiters [istringstream::c_MaxDelimiters] = DEFA
 
 /// Default constructor.
 istringstream::istringstream (void) noexcept
-: istream (),
-  m_Base (0)
+: istream()
+,_base (0)
 {
     exceptions (goodbit);
     set_delimiters (DEFAULT_DELIMITERS);
 }
 
 istringstream::istringstream (const void* p, size_type n) noexcept
-: istream (),
-  m_Base (0)
+: istream()
+,_base (0)
 {
     exceptions (goodbit);
     relink (p, n);
@@ -31,31 +31,34 @@ istringstream::istringstream (const void* p, size_type n) noexcept
 }
 
 istringstream::istringstream (const cmemlink& source) noexcept
-: istream (),
-  m_Base (0)
+: istream()
+,_base (0)
 {
     exceptions (goodbit);
     relink (source);
     set_delimiters (DEFAULT_DELIMITERS);
 }
 
-inline bool istringstream::is_delimiter (char c) const noexcept
+bool istringstream::is_delimiter (char c) const noexcept
 {
-    return (memchr (m_Delimiters, c, VectorSize(m_Delimiters)-1));
+    return memchr (_delimiters, c, VectorSize(_delimiters)-1);
 }
 
 char istringstream::skip_delimiters (void)
 {
-    char c = m_Delimiters[0];
+    char c = _delimiters[0];
     while (is_delimiter(c)) {
 	if (!remaining() && !underflow()) {
 	    verify_remaining ("read", "", 1);
-	    return (0);
+	    return 0;
 	}
 	istream::iread (c);
     }
-    return (c);
+    return c;
 }
+
+//{{{ str_to_num
+namespace {
 
 typedef istringstream::iterator issiter_t;
 template <typename T>
@@ -68,6 +71,8 @@ template <> inline void str_to_num (issiter_t i, issiter_t* iend, uint8_t base, 
     { v = strtoll (i, const_cast<char**>(iend), base); }
 #endif
 
+} //}}} namespace
+
 template <typename T>
 inline void istringstream::read_number (T& v)
 {
@@ -77,7 +82,7 @@ inline void istringstream::read_number (T& v)
     ungetc();
     iterator ilast;
     do {
-	str_to_num<T> (ipos(), &ilast, m_Base, v);
+	str_to_num<T> (ipos(), &ilast, _base, v);
     } while (ilast == end() && underflow());
     skip (distance (ipos(), ilast));
 }
@@ -158,7 +163,7 @@ istringstream& istringstream::read (void* buffer, size_type sz)
 	verify_remaining ("read", "", sz);
     else
 	istream::read (buffer, sz);
-    return (*this);
+    return *this;
 }
 
 /// Reads characters into \p s until \p delim is found (but not stored or extracted)
@@ -167,7 +172,7 @@ istringstream& istringstream::get (string& s, char delim)
     getline (s, delim);
     if (!s.empty() && pos() > 0 && ipos()[-1] == delim)
 	ungetc();
-    return (*this);
+    return *this;
 }
 
 /// Reads characters into \p p,n until \p delim is found (but not stored or extracted)
@@ -179,19 +184,19 @@ istringstream& istringstream::get (char* p, size_type n, char delim)
     const size_t ntc (min (n - 1, s.size()));
     memcpy (p, s.data(), ntc);
     p[ntc] = 0;
-    return (*this);
+    return *this;
 }
 
 /// Reads characters into \p s until \p delim is extracted (but not stored)
 istringstream& istringstream::getline (string& s, char delim)
 {
-    char oldDelim [VectorSize(m_Delimiters)];
-    copy (VectorRange (m_Delimiters), oldDelim);
-    fill (VectorRange (m_Delimiters), '\0');
-    m_Delimiters[0] = delim;
+    char oldDelim [VectorSize(_delimiters)];
+    copy (VectorRange (_delimiters), oldDelim);
+    fill (VectorRange (_delimiters), '\0');
+    _delimiters[0] = delim;
     iread (s);
-    copy (VectorRange (oldDelim), m_Delimiters);
-    return (*this);
+    copy (VectorRange (oldDelim), _delimiters);
+    return *this;
 }
 
 /// Reads characters into \p p,n until \p delim is extracted (but not stored)
@@ -203,14 +208,14 @@ istringstream& istringstream::getline (char* p, size_type n, char delim)
     const size_t ntc (min (n - 1, s.size()));
     memcpy (p, s.data(), ntc);
     p[ntc] = 0;
-    return (*this);
+    return *this;
 }
 
 /// Extract until \p delim or \p n chars have been read.
 istringstream& istringstream::ignore (size_type n, char delim)
 {
     while (n-- && (remaining() || underflow()) && get() != delim) ;
-    return (*this);
+    return *this;
 }
 
 } // namespace ustl

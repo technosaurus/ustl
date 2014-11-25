@@ -44,17 +44,17 @@ public:
     inline		memlink (const void* p, size_type n)	: cmemlink (p, n) {}
     inline		memlink (rcself_t l)			: cmemlink (l) {}
     inline explicit	memlink (const cmemlink& l)		: cmemlink (l) {}
-    inline pointer	data (void)				{ return (const_cast<pointer>(cmemlink::data())); }
-   inline const_pointer	data (void) const			{ return (cmemlink::data()); }
-    inline iterator	begin (void)				{ return (iterator (data())); }
-    inline iterator	iat (size_type i)			{ assert (i <= size()); return (begin() + i); }
-    inline iterator	end (void)				{ return (iat (size())); }
-    inline const_iterator	begin (void) const		{ return (cmemlink::begin()); }
-    inline const_iterator	end (void) const		{ return (cmemlink::end()); }
-    inline const_iterator	iat (size_type i) const		{ return (cmemlink::iat (i)); }
-    size_type		writable_size (void) const		{ return (size()); }
-    inline rcself_t	operator= (const cmemlink& l)		{ cmemlink::operator= (l); return (*this); }
-    inline rcself_t	operator= (rcself_t l)			{ cmemlink::operator= (l); return (*this); }
+    inline pointer	data (void)				{ return const_cast<pointer>(cmemlink::data()); }
+   inline const_pointer	data (void) const			{ return cmemlink::data(); }
+    inline iterator	begin (void)				{ return iterator (data()); }
+    inline iterator	iat (size_type i)			{ assert (i <= size()); return begin() + i; }
+    inline iterator	end (void)				{ return iat (size()); }
+    inline const_iterator	begin (void) const		{ return cmemlink::begin(); }
+    inline const_iterator	end (void) const		{ return cmemlink::end(); }
+    inline const_iterator	iat (size_type i) const		{ return cmemlink::iat (i); }
+    size_type		writable_size (void) const		{ return size(); }
+    inline rcself_t	operator= (const cmemlink& l)		{ cmemlink::operator= (l); return *this; }
+    inline rcself_t	operator= (rcself_t l)			{ cmemlink::operator= (l); return *this; }
     inline void		link (const void* p, size_type n)	{ cmemlink::link (p, n); }
     inline void		link (void* p, size_type n)		{ cmemlink::link (p, n); }
     inline void		link (const cmemlink& l)		{ cmemlink::link (l); }

@@ -16,9 +16,10 @@ namespace ustl {
 
 /// \p arg contains a description of the error.
 error_message::error_message (const char* arg) noexcept
-: m_Arg ()
+: exception()
+,_arg()
 {
-    try { m_Arg = arg; } catch (...) {}
+    try { _arg = arg; } catch (...) {}
     set_format (xfmt_ErrorMessage);
 }
 
@@ -31,27 +32,27 @@ error_message::~error_message (void) noexcept
 void error_message::info (string& msgbuf, const char* fmt) const noexcept
 {
     if (!fmt) fmt = "%s: %s";
-    try { msgbuf.format (fmt, name(), m_Arg.cdata()); } catch (...) {}
+    try { msgbuf.format (fmt, name(), _arg.cdata()); } catch (...) {}
 }
 
 /// Reads the object from stream \p is.
 void error_message::read (istream& is)
 {
     exception::read (is);
-    is >> m_Arg >> ios::align();
+    is >> _arg >> ios::align();
 }
 
 /// Writes the object to stream \p os.
 void error_message::write (ostream& os) const
 {
     exception::write (os);
-    os << m_Arg << ios::align();
+    os << _arg << ios::align();
 }
 
 /// Returns the size of the written object.
 size_t error_message::stream_size (void) const noexcept
 {
-    return (exception::stream_size() + Align (stream_size_of (m_Arg)));
+    return exception::stream_size() + Align (stream_size_of (_arg));
 }
 
 } // namespace ustl

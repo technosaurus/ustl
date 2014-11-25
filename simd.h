@@ -104,10 +104,10 @@ STD_CONVERSION_FUNCTOR (fround, (reset_mmx(), D(rintf(a))))
 #else
 STD_CONVERSION_FUNCTOR (fround, (reset_mmx(), D(rint(a))))
 #endif
-template <> inline int32_t fround<double,int32_t>::operator()(const double& a) const { reset_mmx(); return (int32_t(rint(a))); }
+template <> inline int32_t fround<double,int32_t>::operator()(const double& a) const { reset_mmx(); return int32_t(rint(a)); }
 #endif
-template <> inline float fpavg<float>::operator()(const float& a, const float& b) const { return ((a + b) / 2); }
-template <> inline double fpavg<double>::operator()(const double& a, const double& b) const { return ((a + b) / 2); }
+template <> inline float fpavg<float>::operator()(const float& a, const float& b) const { return (a + b) / 2; }
+template <> inline double fpavg<double>::operator()(const double& a, const double& b) const { return (a + b) / 2; }
 
 #define SIMD_PACKEDOP1(name, operation)		\
 template <typename Ctr>				\
@@ -135,7 +135,7 @@ template <typename T>				\
 inline T name (T op)				\
 {						\
     operation<T> obj;				\
-    return (obj(op));				\
+    return obj(op);				\
 }
 #define SIMD_CONVERTOP(name, operation)		\
 template <typename Ctr1, typename Ctr2>		\
@@ -192,7 +192,7 @@ SIMD_SINGLEOP1 (stan, ftan)
 
 SIMD_CONVERTOP (pround, fround)
 
-template <typename T> inline int32_t sround (T op) { fround<T,int32_t> obj; return (obj (op)); }
+template <typename T> inline int32_t sround (T op) { fround<T,int32_t> obj; return obj (op); }
 #endif
 
 #undef SIMD_SINGLEOP1
@@ -432,14 +432,14 @@ template <> inline int32_t fround<float,int32_t>::operator()(const float& a) con
     asm ("movss %1, %%xmm0\n\t"
 	 "cvtss2si %%xmm0, %0"
 	 : "=r"(rv) : "m"(a) : "xmm0" );
-    return (rv);
+    return rv;
 }
 template <> inline uint32_t fround<float,uint32_t>::operator()(const float& a) const {
     register uint32_t rv;
     asm ("movss %1, %%xmm0\n\t"
 	 "cvtss2si %%xmm0, %0"
 	 : "=r"(rv) : "m"(a) : "xmm0" );
-    return (rv);
+    return rv;
 }
 
 SSE_IPASSIGN_SPEC(4,float)

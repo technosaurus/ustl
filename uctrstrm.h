@@ -30,34 +30,34 @@ namespace ustl {
 #define STD_TEMPLATE_CTR_STREAMABLE(type, template_decl)	\
     template_decl						\
     inline istream& operator>> (istream& is, type& v)		\
-    { return (container_read (is, v)); } 			\
+    { return container_read (is, v); } 			\
     template_decl						\
     inline ostream& operator<< (ostream& os, const type& v)	\
-    { return (container_write (os, v)); } 			\
+    { return container_write (os, v); } 			\
     template_decl						\
     inline ostringstream& operator<< (ostringstream& os, const type& v)	\
-    { return (container_text_write (os, v)); }			\
+    { return container_text_write (os, v); }			\
     template_decl						\
     struct object_stream_size<type > {				\
 	inline size_t operator()(const type& v)	const		\
-	    { return (container_stream_size (v)); }		\
+	    { return container_stream_size (v); }		\
     };
 
 /// \brief Declares non-resizable container template \p type streamable.
 #define STD_TEMPLATE_NR_CTR_STREAMABLE(type, template_decl)	\
     template_decl						\
     inline istream& operator>> (istream& is, type& v)		\
-    { return (nr_container_read (is, v)); } 			\
+    { return nr_container_read (is, v); } 			\
     template_decl						\
     inline ostream& operator<< (ostream& os, const type& v)	\
-    { return (nr_container_write (os, v)); } 			\
+    { return nr_container_write (os, v); } 			\
     template_decl						\
     inline ostringstream& operator<< (ostringstream& os, const type& v)	\
-    { return (container_text_write (os, v)); }			\
+    { return container_text_write (os, v); }			\
     template_decl						\
     struct object_stream_size<type > {				\
 	inline size_t operator()(const type& v)	const		\
-	    { return (nr_container_stream_size (v)); }		\
+	    { return nr_container_stream_size (v); }		\
     };
 
 //----------------------------------------------------------------------
@@ -70,7 +70,7 @@ inline istream& nr_container_read (istream& is, Container& v)
 {
     foreach (typename Container::iterator, i, v)
 	is >> *i;
-    return (is);
+    return is;
 }
 
 /// Writes fixed size container \p v into stream \p os.
@@ -79,7 +79,7 @@ inline ostream& nr_container_write (ostream& os, const Container& v)
 {
     foreach (typename Container::const_iterator, i, v)
 	os << *i;
-    return (os);
+    return os;
 }
 
 /// Computes the stream size of a fixed size standard container.
@@ -88,7 +88,7 @@ inline size_t nr_container_stream_size (const Container& v)
 {
     typedef typename Container::const_iterator vciter_t;
     if (!v.size())
-	return (0);
+	return 0;
     size_t s = 0, dvs;
     vciter_t i = v.begin();
     do {
@@ -97,7 +97,7 @@ inline size_t nr_container_stream_size (const Container& v)
     } while (++i != v.end() && !__builtin_constant_p(dvs));
     if (__builtin_constant_p(dvs))
 	s *= v.size();
-    return (s);
+    return s;
 }
 
 //----------------------------------------------------------------------
@@ -114,13 +114,13 @@ istream& container_read (istream& is, Container& v)
     is >> n;
     const size_t expectedSize = n * stream_size_of(value_type());
     if (!is.verify_remaining ("read", typeid(v).name(), expectedSize))
-	return (is);
+	return is;
     if (stream_align_of(NullValue<value_type>()) > stream_align_of(n))
 	is >> ios::talign<value_type>();
     v.resize (n);
     nr_container_read (is, v);
     is >> ios::talign<written_size_type>();
-    return (is);
+    return is;
 }
 
 /// Writes the vector to stream \p os.
@@ -135,7 +135,7 @@ ostream& container_write (ostream& os, const Container& v)
 	os << ios::talign<value_type>();
     nr_container_write (os, v);
     os << ios::talign<written_size_type>();
-    return (os);
+    return os;
 }
 
 /// Computes the stream size of a standard container.
@@ -148,14 +148,14 @@ size_t container_stream_size (const Container& v)
     size_t sizeSize = stream_size_of (sz);
     if (stream_align_of(NullValue<value_type>()) > stream_align_of(sz))
 	sizeSize = Align (sizeSize, stream_align_of(NullValue<value_type>()));
-    return (Align (sizeSize + nr_container_stream_size (v), stream_align_of(sz)));
+    return Align (sizeSize + nr_container_stream_size (v), stream_align_of(sz));
 }
 
 /// \brief Writes element \p v into stream \p os as text.
 /// Specialize to custom print elements.
 template <typename T>
 inline ostringstream& container_element_text_write (ostringstream& os, const T& v)
-{ return (os << v); }
+{ return os << v; }
 
 /// Writes container \p v into stream \p os as text.
 template <typename Container>
@@ -167,7 +167,7 @@ ostringstream& container_text_write (ostringstream& os, const Container& v)
 	container_element_text_write (os, *i);
 	os << ",)"[++i == v.end()];
     }
-    return (os);
+    return os;
 }
 
 //----------------------------------------------------------------------

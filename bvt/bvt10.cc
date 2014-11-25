@@ -16,14 +16,14 @@ void PrintVector (const Container& ctr)
 
 class A {
 public:
-        A (int dv = 6) : m_v1 (0), m_v (dv) {}
-    int	addsix (int i) { return (i + m_v); }
-    void addsix (int& i) const { i += m_v; }
-    void addtosix (int i) { m_v += i; }
-    inline void text_write (ostringstream& os) const { os << m_v; }
+        A (int dv = 6) : _v1 (0), _v (dv) {}
+    int	addsix (int i) { return i + _v; }
+    void addsix (int& i) const { i += _v; }
+    void addtosix (int i) { _v += i; }
+    inline void text_write (ostringstream& os) const { os << _v; }
 public:
-    int m_v1;
-    int m_v;
+    int _v1;
+    int _v;
 };
 
 INTEGRAL_STREAMABLE(A)
@@ -155,16 +155,16 @@ void TestFunctors (void)
     vector<A> av;
     for (uoff_t i = 0; i < 20; ++ i)
 	av.push_back (A(i));
-    transform (av, mem_var1(&A::m_v, bind2nd(plus<int>(), 6)));
+    transform (av, mem_var1(&A::_v, bind2nd(plus<int>(), 6)));
     PrintVector (av);
 
-    vector<A>::iterator found = find_if (av, mem_var_equal_to(&A::m_v, 14));
+    vector<A>::iterator found = find_if (av, mem_var_equal_to(&A::_v, 14));
     cout << "14 found at position " << found - av.begin() << endl;
-    found = lower_bound (av.begin(), av.end(), 18, mem_var_less(&A::m_v));
+    found = lower_bound (av.begin(), av.end(), 18, mem_var_less(&A::_v));
     cout << "18 found at position " << found - av.begin() << endl;
 
     cout << "add next:\t\t";
-    transform (av.begin(), av.end() - 1, av.begin() + 1, av.begin(), mem_var2(&A::m_v, plus<int>()));
+    transform (av.begin(), av.end() - 1, av.begin() + 1, av.begin(), mem_var2(&A::_v, plus<int>()));
     PrintVector (av);
 }
 

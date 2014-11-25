@@ -11,4 +11,4 @@ typedef void (*stdtestfunc_t)(void);
 
 int StdTestHarness (stdtestfunc_t testFunction);
 
-#define StdBvtMain(function)	int main (void) { return (StdTestHarness (&function)); }
+#define StdBvtMain(function)	int main (void) { return StdTestHarness (&function); }

@@ -14,7 +14,7 @@ public:
     A (const A&)
     { cout << "Copy A::A\n"; }
     const A& operator= (const A&)
-    { cout << "A::operator=\n"; return (*this); }
+    { cout << "A::operator=\n"; return *this; }
     ~A (void)
     { cout << "A::~A\n"; }
 };

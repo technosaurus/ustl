@@ -306,5 +306,5 @@ int main (void)
     TestCopyFunction ("memcpy_copy\t", &memcpy_copy);
     TestCopyFunction ("copy_n\t\t", &copy_n<const char*, char*>);
 
-    return (EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

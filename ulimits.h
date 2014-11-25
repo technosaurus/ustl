@@ -19,9 +19,9 @@ template <typename T> struct __limits_digits10 { enum { value = sizeof(T)*8*643/
 template <typename T> 
 struct numeric_limits {
     /// Returns the minimum value for type T.
-    static inline constexpr T min (void)		{ return (T(0)); }
+    static inline constexpr T min (void)		{ return T(0); }
     /// Returns the minimum value for type T.
-    static inline constexpr T max (void)		{ return (T(0)); }
+    static inline constexpr T max (void)		{ return T(0); }
     static const bool is_signed = false;	///< True if the type is signed.
     static const bool is_integer = false;	///< True if stores an exact value.
     static const bool is_integral = false;	///< True if fixed size and cast-copyable.
@@ -33,8 +33,8 @@ struct numeric_limits {
 
 template <typename T>
 struct numeric_limits<T*> {
-    static inline constexpr T* min (void)	{ return (NULL); }
-    static inline constexpr T* max (void)	{ return (reinterpret_cast<T*>(UINTPTR_MAX)); }
+    static inline constexpr T* min (void)	{ return nullptr; }
+    static inline constexpr T* max (void)	{ return reinterpret_cast<T*>(UINTPTR_MAX); }
     static const bool is_signed = false;
     static const bool is_integer = true;
     static const bool is_integral = true;
@@ -45,8 +45,8 @@ struct numeric_limits<T*> {
 #define _NUMERIC_LIMITS(type, minVal, maxVal, bSigned, bInteger, bIntegral)	\
 template <>								\
 struct numeric_limits<type> {						\
-    static inline constexpr type min (void)	{ return (minVal); }	\
-    static inline constexpr type max (void)	{ return (maxVal); }	\
+    static inline constexpr type min (void)	{ return minVal; }	\
+    static inline constexpr type max (void)	{ return maxVal; }	\
     static const bool is_signed = bSigned;				\
     static const bool is_integer = bInteger;				\
     static const bool is_integral = bIntegral;				\

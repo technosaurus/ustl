@@ -16,7 +16,7 @@ void TestEnumArithmetic (void)
 	nectarine,
 	NFruits
     };
-    const char* fruits [NFruits + 1] = {
+    static const char* fruits [NFruits + 1] = {
 	"apple",
 	"orange",
 	"plum",

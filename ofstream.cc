@@ -23,126 +23,126 @@ ofstream cerr (STDERR_FILENO);
 
 /// Default constructor.
 ofstream::ofstream (void)
-: ostringstream (),
-  m_File ()
+: ostringstream()
+,_file()
 {
     reserve (255);
 }
 
-/// Constructs a stream for writing to \p Fd.
-ofstream::ofstream (int Fd)
-: ostringstream (),
-  m_File (Fd)
+/// Constructs a stream for writing to \p ofd
+ofstream::ofstream (int ofd)
+: ostringstream()
+,_file (ofd)
 {
-    clear (m_File.rdstate());
+    clear (_file.rdstate());
     reserve (255);
 }
 
 /// Constructs a stream for writing to \p filename.
 ofstream::ofstream (const char* filename, openmode mode)
-: ostringstream (),
-  m_File (filename, mode)
+: ostringstream()
+,_file (filename, mode)
 {
-    clear (m_File.rdstate());
+    clear (_file.rdstate());
 }
 
 /// Default destructor.
 ofstream::~ofstream (void) noexcept
 {
     try { flush(); } catch (...) {}
-    if (m_File.fd() <= STDERR_FILENO)	// Do not close cin,cout,cerr
-	m_File.detach();
+    if (_file.fd() <= STDERR_FILENO)	// Do not close cin,cout,cerr
+	_file.detach();
 }
 
 /// Flushes the buffer and closes the file.
 void ofstream::close (void)
 {
-    clear (m_File.rdstate());
+    clear (_file.rdstate());
     flush();
-    m_File.close();
+    _file.close();
 }
 
 /// Flushes the buffer to the file.
 ofstream& ofstream::flush (void)
 {
     clear();
-    while (good() && pos() && overflow (remaining())) ;
-    clear (m_File.rdstate());
-    return (*this);
+    while (good() && pos() && overflow (remaining())) {}
+    clear (_file.rdstate());
+    return *this;
 }
 
 /// Seeks to \p p based on \p d.
 ofstream& ofstream::seekp (off_t p, seekdir d)
 {
     flush();
-    m_File.seekp (p, d);
-    clear (m_File.rdstate());
-    return (*this);
+    _file.seekp (p, d);
+    clear (_file.rdstate());
+    return *this;
 }
 
 /// Called when more buffer space (\p n bytes) is needed.
 ofstream::size_type ofstream::overflow (size_type n)
 {
     if (eof() || (n > remaining() && n < capacity() - pos()))
-	return (ostringstream::overflow (n));
-    size_type bw = m_File.write (cdata(), pos());
-    clear (m_File.rdstate());
+	return ostringstream::overflow (n);
+    size_type bw = _file.write (cdata(), pos());
+    clear (_file.rdstate());
     erase (begin(), bw);
     if (remaining() < n)
 	ostringstream::overflow (n);
-    return (remaining());
+    return remaining();
 }
 
 //----------------------------------------------------------------------
 
-/// Constructs a stream to read from \p Fd.
-ifstream::ifstream (int Fd)
-: istringstream (),
-  m_Buffer (255,'\0'),
-  m_File (Fd)
+/// Constructs a stream to read from \p ifd.
+ifstream::ifstream (int ifd)
+: istringstream ()
+,_buffer (255,'\0')
+,_file (ifd)
 {
-    link (m_Buffer.data(), streamsize(0));
+    link (_buffer.data(), streamsize(0));
 }
 
 /// Constructs a stream to read from \p filename.
 ifstream::ifstream (const char* filename, openmode mode)
-: istringstream (),
-  m_Buffer (255,'\0'),
-  m_File (filename, mode)
+: istringstream ()
+,_buffer (255,'\0')
+,_file (filename, mode)
 {
-    clear (m_File.rdstate());
-    link (m_Buffer.data(), streamsize(0));
+    clear (_file.rdstate());
+    link (_buffer.data(), streamsize(0));
 }
 
 /// Reads at least \p n more bytes and returns available bytes.
 ifstream::size_type ifstream::underflow (size_type n)
 {
     if (eof())
-	return (istringstream::underflow (n));
+	return istringstream::underflow (n);
 
-    const ssize_t freeSpace = m_Buffer.size() - pos();
-    const ssize_t neededFreeSpace = max (n, m_Buffer.size() / 2);
+    const ssize_t freeSpace = _buffer.size() - pos();
+    const ssize_t neededFreeSpace = max (n, _buffer.size() / 2);
     const size_t oughtToErase = Align (max (0, neededFreeSpace - freeSpace));
     const size_type nToErase = min (pos(), oughtToErase);
-    m_Buffer.memlink::erase (m_Buffer.begin(), nToErase);
+    _buffer.memlink::erase (_buffer.begin(), nToErase);
     const uoff_t oldPos (pos() - nToErase);
 
     size_type br = oldPos;
-    if (m_Buffer.size() - br < n) {
-	m_Buffer.resize (br + neededFreeSpace);
-	link (m_Buffer.data(), streamsize(0));
+    if (_buffer.size() - br < n) {
+	_buffer.resize (br + neededFreeSpace);
+	link (_buffer.data(), streamsize(0));
     }
     cout.flush();
 
     size_type brn = 1;
-    for (; br < oldPos + n && brn && m_File.good(); br += brn)
-	brn = m_File.readsome (m_Buffer.begin() + br, m_Buffer.size() - br);
-    clear (m_File.rdstate());
+    for (; br < oldPos + n && brn && _file.good(); br += brn)
+	brn = _file.readsome (_buffer.begin() + br, _buffer.size() - br);
+    clear (_file.rdstate());
 
-    m_Buffer[br] = 0;
-    link (m_Buffer.data(), br);
+    _buffer[br] = 0;
+    link (_buffer.data(), br);
     seek (oldPos);
-    return (remaining());
+    return remaining();
 }
 
 /// Flushes the input.
@@ -150,18 +150,18 @@ int ifstream::sync (void)
 {
     istringstream::sync();
     underflow (0U);
-    clear (m_File.rdstate());
-    return (-good());
+    clear (_file.rdstate());
+    return -good();
 }
 
 /// Seeks to \p p based on \p d.
 ifstream& ifstream::seekg (off_t p, seekdir d)
 {
-    m_Buffer.clear();
-    link (m_Buffer);
-    m_File.seekg (p, d);
-    clear (m_File.rdstate());
-    return (*this);
+    _buffer.clear();
+    link (_buffer);
+    _file.seekg (p, d);
+    clear (_file.rdstate());
+    return *this;
 }
 
 //----------------------------------------------------------------------

@@ -8,12 +8,12 @@
 void ObjectSerialization (void)
 {
     #define RW(stream)	rws[stream.pos() == expect]
-    const void* pBufC = NULL;
-    void* pBuf = NULL;
+    const void* pBufC = nullptr;
+    void* pBuf = nullptr;
     memblock buffer;
     string testString ("TestString");
-    const string* pStrC = NULL;
-    string* pStr = NULL;
+    const string* pStrC = nullptr;
+    string* pStr = nullptr;
     vector<uint16_t> tv (7);
     static const char* rws[2] = { "wrong", "right" };
 

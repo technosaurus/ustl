@@ -28,7 +28,7 @@ class CBacktrace {
 public:
 			CBacktrace (void) noexcept;
 			CBacktrace (const CBacktrace& v) noexcept;
-    inline		~CBacktrace (void) noexcept	{ if (m_Symbols) free (m_Symbols); }
+    inline		~CBacktrace (void) noexcept	{ if (_symbols) free (_symbols); }
     const CBacktrace&	operator= (const CBacktrace& v) noexcept;
     void		text_write (ostringstream& os) const;
     void		read (istream& is);
@@ -37,10 +37,10 @@ public:
 private:
     void		GetSymbols (void) noexcept DLL_LOCAL;
 private:
-    void*		m_Addresses [64];	///< Addresses of each function on the stack.
-    char*		m_Symbols;		///< Symbols corresponding to each address.
-    uint32_t		m_nFrames;		///< Number of addresses in m_Addresses.
-    uint32_t		m_SymbolsSize;		///< Size of m_Symbols.
+    void*		_addresses [64];	///< Addresses of each function on the stack.
+    char*		_symbols;		///< Symbols corresponding to each address.
+    uint32_t		_nFrames;		///< Number of addresses in _addresses.
+    uint32_t		_symbolsSize;		///< Size of _symbols.
 };
 
 } // namespace ustl

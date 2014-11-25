@@ -59,24 +59,24 @@ class exception : public std::exception {
 public:
     typedef const CBacktrace& rcbktrace_t;
 public:
-    inline		exception (void) noexcept : m_Format (xfmt_Exception) {}
-    inline virtual     ~exception (void) noexcept {}
-    inline virtual const char* what (void) const noexcept { return ("error"); }
-    virtual void	info (string& msgbuf, const char* fmt = NULL) const noexcept;
+    inline		exception (void) noexcept : _format (xfmt_Exception) {}
+    inline virtual	~exception (void) noexcept {}
+    inline virtual const char* what (void) const noexcept { return "error"; }
+    virtual void	info (string& msgbuf, const char* fmt = nullptr) const noexcept;
     virtual void	read (istream& is);
     virtual void	write (ostream& os) const;
     void		text_write (ostringstream& os) const noexcept;
-    inline virtual size_t stream_size (void) const noexcept { return (sizeof(m_Format) + sizeof(uint32_t) + m_Backtrace.stream_size()); }
+    inline virtual size_t stream_size (void) const noexcept { return sizeof(_format) + sizeof(uint32_t) + _backtrace.stream_size(); }
     /// Format of the exception is used to lookup exception::info format string.
     /// Another common use is the instantiation of serialized exceptions, used
     /// by the error handler node chain to troubleshoot specific errors.
-    inline xfmt_t	format (void) const	{ return (m_Format); }
-    inline rcbktrace_t	backtrace (void) const	{ return (m_Backtrace); }
+    inline xfmt_t	format (void) const	{ return _format; }
+    inline rcbktrace_t	backtrace (void) const	{ return _backtrace; }
 protected:
-    inline void		set_format (xfmt_t fmt) { m_Format = fmt; }
+    inline void		set_format (xfmt_t fmt) { _format = fmt; }
 private:
-    CBacktrace		m_Backtrace;	///< Backtrace of the throw point.
-    xfmt_t		m_Format;	///< Format of the exception's data.
+    CBacktrace		_backtrace;	///< Backtrace of the throw point.
+    xfmt_t		_format;	///< Format of the exception's data.
 };
 
 /// \class bad_cast uexception.h ustl.h
@@ -87,13 +87,13 @@ private:
 class bad_cast : public exception {
 public:
     inline 			bad_cast (void) noexcept		: exception() {}
-    inline virtual const char*	what (void) const noexcept	{ return ("bad cast"); }
+    inline virtual const char*	what (void) const noexcept override	{ return "bad cast"; }
 };
 
 class bad_typeid : public exception {
 public:
-    inline			bad_typeid (void) noexcept	{ }
-    inline virtual const char*	what (void) const noexcept	{ return ("bad typeid"); }
+    inline			bad_typeid (void) noexcept		{ }
+    inline virtual const char*	what (void) const noexcept override	{ return "bad typeid"; }
 };
 
 //----------------------------------------------------------------------
@@ -113,13 +113,13 @@ class bad_alloc : public std::bad_alloc, public exception {
 #endif
 public:
     explicit		bad_alloc (size_t nBytes = 0) noexcept;
-    inline virtual const char*	what (void) const noexcept { return ("memory allocation failed"); }
-    virtual void	info (ustl::string& msgbuf, const char* fmt = NULL) const noexcept;
-    virtual void	read (ustl::istream& is);
-    virtual void	write (ustl::ostream& os) const;
-    virtual size_t	stream_size (void) const noexcept;
+    inline virtual const char*	what (void) const noexcept override { return "memory allocation failed"; }
+    virtual void	info (ustl::string& msgbuf, const char* fmt = nullptr) const noexcept override;
+    virtual void	read (ustl::istream& is) override;
+    virtual void	write (ustl::ostream& os) const override;
+    virtual size_t	stream_size (void) const noexcept override;
 protected:
-    size_t		m_nBytesRequested;	///< Number of bytes requested by the failed allocation.
+    size_t		_bytesRequested;	///< Number of bytes requested by the failed allocation.
 };
 
 #if WITHOUT_LIBSTDCPP
@@ -140,14 +140,16 @@ public:
     explicit		libc_exception (const char* operation) noexcept;
 			libc_exception (const libc_exception& v) noexcept;
     const libc_exception& operator= (const libc_exception& v);
-    inline virtual const char*	what (void) const noexcept { return ("libc function failed"); }
-    virtual void	info (string& msgbuf, const char* fmt = NULL) const noexcept;
-    virtual void	read (istream& is);
-    virtual void	write (ostream& os) const;
-    virtual size_t	stream_size (void) const noexcept;
-protected:
-    intptr_t		m_Errno;		///< Error code returned by the failed operation.
-    const char*		m_Operation;		///< Name of the failed operation.
+    inline virtual const char*	what (void) const noexcept override { return "libc function failed"; }
+    virtual void	info (string& msgbuf, const char* fmt = nullptr) const noexcept override;
+    virtual void	read (istream& is) override;
+    virtual void	write (ostream& os) const override;
+    virtual size_t	stream_size (void) const noexcept override;
+    inline int		Errno (void) const	{ return _errno; }
+    inline const char*	Operation (void) const	{ return _operation; }
+private:
+    intptr_t		_errno;		///< Error code returned by the failed operation.
+    const char*		_operation;	///< Name of the failed operation.
 };
 
 /// \class file_exception uexception.h ustl.h
@@ -160,13 +162,14 @@ protected:
 class file_exception : public libc_exception {
 public:
 			file_exception (const char* operation, const char* filename) noexcept;
-    inline virtual const char* what (void) const noexcept { return ("file error"); }
-    virtual void	info (string& msgbuf, const char* fmt = NULL) const noexcept;
-    virtual void	read (istream& is);
-    virtual void	write (ostream& os) const;
-    virtual size_t	stream_size (void) const noexcept;
-protected:
-    char		m_Filename [PATH_MAX];	///< Name of the file causing the error.
+    inline virtual const char* what (void) const noexcept override { return "file error"; }
+    virtual void	info (string& msgbuf, const char* fmt = nullptr) const noexcept override;
+    virtual void	read (istream& is) override;
+    virtual void	write (ostream& os) const override;
+    virtual size_t	stream_size (void) const noexcept override;
+    inline const char*	Filename (void) const	{ return _filename; }
+private:
+    char		_filename [PATH_MAX];	///< Name of the file causing the error.
 };
 
 /// \class stream_bounds_exception uexception.h ustl.h
@@ -180,18 +183,22 @@ protected:
 class stream_bounds_exception : public libc_exception {
 public:
 			stream_bounds_exception (const char* operation, const char* type, uoff_t offset, size_t expected, size_t remaining) noexcept;
-    inline virtual const char*	what (void) const noexcept { return ("stream bounds exception"); }
-    virtual void	info (string& msgbuf, const char* fmt = NULL) const noexcept;
-    virtual void	read (istream& is);
-    virtual void	write (ostream& os) const;
-    virtual size_t	stream_size (void) const noexcept;
-protected:
-    const char*		m_TypeName;
-    uoff_t		m_Offset;
-    size_t		m_Expected;
-    size_t		m_Remaining;
+    inline virtual const char*	what (void) const noexcept override { return "stream bounds exception"; }
+    virtual void	info (string& msgbuf, const char* fmt = nullptr) const noexcept override;
+    virtual void	read (istream& is) override;
+    virtual void	write (ostream& os) const override;
+    virtual size_t	stream_size (void) const noexcept override;
+    inline const char*	TypeName (void) const	{ return _typeName; }
+    inline uoff_t	Offset (void) const	{ return _offset; }
+    inline size_t	Expected (void) const	{ return _expected; }
+    inline size_t	Remaining (void) const	{ return _remaining; }
+private:
+    const char*		_typeName;
+    uoff_t		_offset;
+    size_t		_expected;
+    size_t		_remaining;
 };
 
-const char* demangle_type_name (char* buf, size_t bufSize, size_t* pdmSize = NULL) noexcept;
+const char* demangle_type_name (char* buf, size_t bufSize, size_t* pdmSize = nullptr) noexcept;
 
 } // namespace ustl

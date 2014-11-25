@@ -24,18 +24,18 @@ static void PrintVector (rcintvec_t v)
 
 static bool is_even (int i)
 {
-    return (i % 2 == 0);
+    return i % 2 == 0;
 }
 
 static int sqr (int i)
 {
-    return (i * i);
+    return i * i;
 }
 
 static int genint (void)
 {
     static int counter = 0;
-    return (counter++);
+    return counter++;
 }
 
 // In its own function because compilers differ in selecting const/nonconst
