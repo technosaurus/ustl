@@ -13,10 +13,10 @@ void TestArray (const char* ctrType)
     cout << "================================================" << endl;
     assert (N <= 8);
 #if HAVE_CPP11
-    array<T,N> pt1 ({1,2,3,4,5,6,7,8});
+    array<T,N> pt1 = {1,2,3,4,5,6,7,8};
     array<T,N> pt2;
-    pt2 = {4,4,4,4};
-    pt2 += {1,2,3,4};
+    pt2 = {4,4,4,4,4,4,4,4};
+    pt2 += {1,2,3,4,1,2,3,4};
 #else
     T pt1v[12] = { 1, 2, 3, 4, 5, 6, 7, 8 };
     array<T,N> pt1 (pt1v);
