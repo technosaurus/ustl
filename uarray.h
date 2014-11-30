@@ -29,6 +29,16 @@ public:
     typedef ::ustl::reverse_iterator<const_iterator>	const_reverse_iterator;
     typedef std::initializer_list<value_type>		initlist_t;
 public:
+#if HAVE_CPP11
+    inline array&		operator+= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] += v.begin()[i]; return *this; }
+    inline array&		operator-= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] -= v.begin()[i]; return *this; }
+    inline array&		operator*= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] *= v.begin()[i]; return *this; }
+    inline array&		operator/= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] /= v.begin()[i]; return *this; }
+    inline array		operator+ (initlist_t v) const		{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] + v.begin()[i]; return result; }
+    inline array		operator- (initlist_t v) const		{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] - v.begin()[i]; return result; }
+    inline array		operator* (initlist_t v) const		{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] * v.begin()[i]; return result; }
+    inline array		operator/ (initlist_t v) const		{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] / v.begin()[i]; return result; }
+#else
     inline			array (void)				{ fill_n (_v, N, T()); }
     template <typename T2>
     inline			array (const array<T2,N>& v)		{ copy_n (v.begin(), N, _v); }
@@ -38,24 +48,25 @@ public:
     inline			array (const_reference v0, const_reference v1)	{ _v[0] = v0; fill_n (_v+1,N-1,v1); }
     inline			array (const_reference v0, const_reference v1, const_reference v2)	{ _v[0] = v0; _v[1] = v1; fill_n (_v+2,N-2,v2); }
     inline			array (const_reference v0, const_reference v1, const_reference v2, const_reference v3)	{ _v[0] = v0; _v[1] = v1; _v[2] = v2; fill_n (_v+3,N-3,v3); }
+    template <typename T2>
+    inline array&		operator= (const array<T2,N>& v)	{ copy_n (v.begin(), N, _v); return *this; }
+    inline array&		operator= (const array& v)		{ copy_n (v.begin(), N, _v); return *this; }
+#endif
     inline iterator		begin (void)				{ return _v; }
-    inline const_iterator	begin (void) const			{ return _v; }
     inline iterator		end (void)				{ return begin() + N; }
-    inline const_iterator	end (void) const			{ return begin() + N; }
-    inline size_type		size (void) const			{ return N; }
-    inline size_type		max_size (void) const			{ return N; }
-    inline bool			empty (void) const			{ return N == 0; }
-    inline const_reference	at (size_type i) const			{ return _v[i]; }
     inline reference		at (size_type i)			{ return _v[i]; }
+    inline reference		operator[] (size_type i)		{ return _v[i]; }
+    inline constexpr const_iterator	begin (void) const		{ return _v; }
+    inline constexpr const_iterator	end (void) const		{ return begin() + N; }
+    inline constexpr size_type		size (void) const		{ return N; }
+    inline constexpr size_type		max_size (void) const		{ return N; }
+    inline constexpr bool		empty (void) const		{ return N == 0; }
+    inline constexpr const_reference	at (size_type i) const		{ return _v[i]; }
+    inline constexpr const_reference	operator[] (size_type i) const	{ return _v[i]; }
     inline void			read (istream& is)			{ nr_container_read (is, *this); }
     inline void			write (ostream& os) const		{ nr_container_write (os, *this); }
     inline void			text_write (ostringstream& os) const	{ container_text_write (os, *this); }
     inline size_t		stream_size (void) const		{ return nr_container_stream_size (*this); }
-    inline const_reference	operator[] (size_type i) const		{ return _v[i]; }
-    inline reference		operator[] (size_type i)		{ return _v[i]; }
-    template <typename T2>
-    inline array&		operator= (const array<T2,N>& v)	{ copy_n (v.begin(), N, _v); return *this; }
-    inline array&		operator= (const array& v)		{ copy_n (v.begin(), N, _v); return *this; }
     inline array&		operator+= (const_reference v)		{ for (size_type i = 0; i < N; ++i) _v[i] += v; return *this; }
     inline array&		operator-= (const_reference v)		{ for (size_type i = 0; i < N; ++i) _v[i] -= v; return *this; }
     inline array&		operator*= (const_reference v)		{ for (size_type i = 0; i < N; ++i) _v[i] *= v; return *this; }
@@ -64,19 +75,9 @@ public:
     inline array		operator- (const_reference v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] - v; return result; }
     inline array		operator* (const_reference v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] * v; return result; }
     inline array		operator/ (const_reference v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] / v; return result; }
-#if HAVE_CPP11
-    inline			array (initlist_t v)			{ copy_n (v.begin(), N, _v); }
-    inline array&		operator= (initlist_t v)		{ copy_n (v.begin(), N, _v); return *this; }
-    inline array&		operator+= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] += v.begin()[i]; return *this; }
-    inline array&		operator-= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] -= v.begin()[i]; return *this; }
-    inline array&		operator*= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] *= v.begin()[i]; return *this; }
-    inline array&		operator/= (initlist_t v)		{ for (size_type i = 0; i < N; ++i) _v[i] /= v.begin()[i]; return *this; }
-    inline array		operator+ (initlist_t v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] + v.begin()[i]; return result; }
-    inline array		operator- (initlist_t v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] - v.begin()[i]; return result; }
-    inline array		operator* (initlist_t v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] * v.begin()[i]; return result; }
-    inline array		operator/ (initlist_t v) const	{ array result; for (size_type i = 0; i < N; ++i) result[i] = _v[i] / v.begin()[i]; return result; }
-#endif
-private:
+    inline void			fill (const_reference v)		{ ::ustl::fill (begin(), end(), v); }
+    inline void			swap (array& v)				{ swap_ranges (begin(), end(), v.begin()); }
+public:
     T				_v [N];
 };
 
