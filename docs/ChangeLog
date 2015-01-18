@@ -1,3 +1,13 @@
+2015-01-18 Release 2.2
+	* Implement C++11 type traits
+	* Some fixes for incorrect behavior of array
+	* Coding style changes based on "Effective C++" recommendations
+	* Fix string vformat sometimes leaving string empty
+	* Fix crash when using string.erase(i,string::npos)
+
+2014-01-21 Release 2.1
+	* Implement C++11 array
+
 2013-02-14 Release 2.0
 	* Some C++11 features implemented. All containers now have move
 	    operations, emplace, and initializer lists. noexcept and
