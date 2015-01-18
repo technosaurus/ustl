@@ -30,7 +30,7 @@ void TestArray (const char* ctrType)
     pt2.fill (pt2[0]);
     pt2 += {1,2,3,4,1,2,3,4};
 #else
-    T pt1v[12] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    T pt1v[12] = { 1, 2, 3, 4, 5, 6, 7, 8, 5, 6, 7, 8 };
     array<T,N> pt1 (pt1v);
     array<T,N> pt2 (&pt1v[4]);
 #endif
