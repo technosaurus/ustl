@@ -100,10 +100,11 @@ int main (void)
 If you have at least gcc 3.4, uSTL is built as a standalone library,
 without linking to libstdc++ (except on BSD platforms where gcc does not
 support it) Because g++ links to it by default, you'll need to link your
-applications with gcc, or to pass <kbd>-nodefaultlibs -lc</kbd> to g++
-if you want to use uSTL to completely replace libstdc++.  This is where
-the actual space savings happen. (If you want to see just how much you can
-save, skip to the <a href="#Savings">Template Bloat Be Gone</a> section)
+applications with gcc, or to pass <kbd>-nodefaultlibs -lgcc_s -lc</kbd>
+to g++ if you want to use uSTL to completely replace libstdc++. This is
+where the actual space savings happen. (If you want to see just how much
+you can save, skip to the <a href="#Savings">Template Bloat Be Gone</a>
+section)
 </p>
 <h2><a name="Containers">Containers and Iterators</a></h2>
 <p>
