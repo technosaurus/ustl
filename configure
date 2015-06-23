@@ -333,24 +333,10 @@ Configuration:
 
 Installation directories:
   --prefix=PREFIX	architecture-independent files [/usr/local]
-  --exec-prefix=EPREFIX	architecture-dependent files [PREFIX]
-  --bindir=DIR		user executables [EPREFIX/bin]
-  --sbindir=DIR		system admin executables [EPREFIX/sbin]
-  --libexecdir=DIR	program executables [EPREFIX/libexec]
-  --datadir=DIR		read-only architecture-independent data [PREFIX/share]
-  --sysconfdir=DIR	read-only single-machine data [PREFIX/etc]
-  --sharedstatedir=DIR	modifiable architecture-independent data [PREFIX/com]
-  --localstatedir=DIR	modifiable single-machine data [PREFIX/var]
-  --libdir=DIR		object code libraries [EPREFIX/lib]
+  --libdir=DIR		object code libraries [PREFIX/lib]
   --includedir=DIR	C header files [PREFIX/include]
   --oldincludedir=DIR	C header files for non-gcc [/usr/include]
   --gccincludedir=DIR	GCC internal header files [PREFIX/include]
-  --infodir=DIR		info documentation [PREFIX/info]
-  --mandir=DIR		man documentation [PREFIX/man]
-
-System types:
-  --build=BUILD		configure for building on BUILD [guessed]
-  --host=HOST		cross-compile to build programs to run on HOST [BUILD]
 "
     PrintComponents
     echo "Report bugs to $PKG_BUGREPORT."
