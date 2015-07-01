@@ -7,6 +7,11 @@ Align(5,2) = 6
 Align(17,7) = 21
 Align(14,7) = 14
 
+FirstBit(0,75) = 75
+FirstBit(1,75) = 0
+FirstBit(3827,75) = 11
+FirstBit(uint64_t(0x10f000f000),75) = 36
+
 NextPow2(0) = 1
 NextPow2(1) = 2
 NextPow2(4) = 4

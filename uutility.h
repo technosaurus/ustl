@@ -355,8 +355,10 @@ inline uoff_t FirstBit (uint64_t v, uoff_t nbv)
 #if __x86_64__
     if (!__builtin_constant_p(v)) asm ("bsr\t%1, %0":"+r,r"(n):"r,m"(v)); else
 #endif
-#if __GNUC__
+#if __GNUC__ && SIZE_OF_LONG >= 8
     if (v) n = 63 - __builtin_clzl(v);
+#elif __GNUC__ && HAVE_LONG_LONG && SIZE_OF_LONG_LONG >= 8
+    if (v) n = 63 - __builtin_clzll(v);
 #else
     if (v) for (uint64_t m = uint64_t(1)<<(n=63); !(v & m); m >>= 1) --n;
 #endif

@@ -33,6 +33,11 @@ void TestUtility (void)
     cout << "Align(17,7) = " << Align(17,7) << endl;
     cout << "Align(14,7) = " << Align(14,7) << endl;
     cout << endl;
+    cout << "FirstBit(0,75) = " << FirstBit(0u,75) << endl;
+    cout << "FirstBit(1,75) = " << FirstBit(1u,75) << endl;
+    cout << "FirstBit(3827,75) = " << FirstBit(3827u,75) << endl;
+    cout << "FirstBit(uint64_t(0x10f000f000),75) = " << FirstBit(uint64_t(0x10f000f000),75) << endl;
+    cout << endl;
     cout << "NextPow2(0) = " << NextPow2(0) << endl;
     cout << "NextPow2(1) = " << NextPow2(1) << endl;
     cout << "NextPow2(4) = " << NextPow2(4) << endl;
