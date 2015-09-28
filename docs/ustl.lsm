@@ -12,7 +12,7 @@ Author:		msharov@users.sourceforge.net (Mike Sharov)
 Maintained-by:	msharov@users.sourceforge.net (Mike Sharov)
 Primary-site:	ibiblio.org /pub/linux/devel/lang/c++
 		@disttar@
-Alternate-site:	http://ustl.sourceforge.net
+Alternate-site:	http://github.com/msharov/ustl
 Platforms:	POSIX
 Copying-policy:	MIT
 End
