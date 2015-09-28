@@ -131,6 +131,8 @@ private:
     pointer			_p;
 };
 
+#if HAVE_CPP14
+
 template <typename T> struct __make_unique { using __single_object = unique_ptr<T>; };
 template <typename T> struct __make_unique<T[]> { using __array = unique_ptr<T[]>; };
 template <typename T, size_t N> struct __make_unique<T[N]> { struct __invalid_type {}; };
@@ -147,6 +149,7 @@ template <typename T, typename... Args>
 inline typename __make_unique<T>::__invalid_type
     make_unique (Args&&...) = delete;
 
+#endif // HAVE_CPP14
 #endif // HAVE_CPP11
 //}}}-------------------------------------------------------------------
 //{{{ construct and destroy

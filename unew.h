@@ -29,6 +29,10 @@ inline void* operator new (size_t n) throw (std::bad_alloc)	{ return tmalloc (n)
 inline void* operator new[] (size_t n) throw (std::bad_alloc)	{ return tmalloc (n); }
 inline void  operator delete (void* p)				{ nfree (p); }
 inline void  operator delete[] (void* p)			{ nfree (p); }
+#if HAVE_CPP14
+inline void  operator delete (void* p, size_t)			{ nfree (p); }
+inline void  operator delete[] (void* p, size_t)		{ nfree (p); }
+#endif
 
 // Default placement versions of operator new.
 inline void* operator new (size_t, void* p) noexcept	{ return p; }
