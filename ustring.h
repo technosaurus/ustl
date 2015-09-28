@@ -53,7 +53,6 @@ public:
     typedef ::ustl::reverse_iterator<iterator>		reverse_iterator;
     typedef ::ustl::reverse_iterator<const_iterator>	const_reverse_iterator;
     typedef utf8in_iterator<const_iterator>		utf8_iterator;
-    typedef std::initializer_list<value_type>		initlist_t;
     static const size_type npos = INT_MAX;		///< Value that means the end of string.
 public:
     inline			string (void) noexcept		: memblock () { relink ("",0); }
@@ -204,6 +203,7 @@ public:
     size_t			stream_size (void) const noexcept;
     static hashvalue_t		hash (const char* f1, const char* l1) noexcept;
 #if HAVE_CPP11
+    using initlist_t = std::initializer_list<value_type>;
     inline			string (string&& v)		: memblock (move(v)) {}
     inline			string (initlist_t v)		: memblock() { assign (v.begin(), v.size()); }
     inline string&		assign (string&& v)		{ swap (v); return *this; }

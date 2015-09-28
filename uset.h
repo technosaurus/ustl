@@ -33,7 +33,6 @@ public:
     typedef pair<iterator,bool>				insertrv_t;
     typedef pair<iterator,iterator>			range_t;
     typedef pair<const_iterator,const_iterator>		const_range_t;
-    typedef std::initializer_list<value_type>		initlist_t;
 public:
     inline			set (void)		: base_class() { }
     explicit inline		set (size_type n)	: base_class (n) { }
@@ -69,6 +68,7 @@ public:
     inline void			clear (void)				{ base_class::clear(); }
     inline void			swap (set& v)				{ base_class::swap (v); }
 #if HAVE_CPP11
+    using initlist_t = std::initializer_list<value_type>;
     inline			set (set&& v)				: base_class (move(v)) {}
     inline			set (initlist_t v)			: base_class() { insert (v.begin(), v.end()); }
     inline set&			operator= (set&& v)			{ base_class::operator= (move(v)); return *this; }

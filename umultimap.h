@@ -34,7 +34,6 @@ public:
     typedef typename base_class::const_reverse_iterator	const_reverse_iterator;
     typedef pair<const_iterator,const_iterator>		const_range_t;
     typedef pair<iterator,iterator>			range_t;
-    typedef std::initializer_list<value_type>		initlist_t;
     typedef Comp					key_compare;
     typedef pair_compare_first<value_type,Comp>		value_compare;
     typedef pair_compare_first_key<K,V,Comp>		value_key_compare;
@@ -70,6 +69,7 @@ public:
     inline iterator		erase (const_iterator ep1, const_iterator ep2)	{ return base_class::erase (ep1, ep2); } 
     inline void			swap (multimap& v)			{ base_class::swap (v); }
 #if HAVE_CPP11
+    using initlist_t = std::initializer_list<value_type>;
     inline			multimap (multimap&& v)			: base_class (move(v)) {}
     inline			multimap (initlist_t v)			: base_class() { insert (v.begin(), v.end()); }
     inline multimap&		operator= (multimap&& v)		{ base_class::operator= (move(v)); return *this; }

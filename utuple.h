@@ -29,7 +29,6 @@ public:
     typedef ::ustl::reverse_iterator<const_iterator>	const_reverse_iterator;
     typedef pair<iterator,iterator>			range_t;
     typedef pair<const_iterator,const_iterator>		const_range_t;
-    typedef std::initializer_list<value_type>		initlist_t;
 public:
     template <typename T2>
     inline			tuple (const tuple<N,T2>& t);
@@ -77,6 +76,7 @@ public:
     inline void			text_write (ostringstream& os) const	{ container_text_write (os, *this); }
     inline size_t		stream_size (void) const		{ return nr_container_stream_size (*this); }
 #if HAVE_CPP11
+    using initlist_t = std::initializer_list<value_type>;
     inline			tuple (initlist_t v)			{ assign (v); }
     inline tuple&		assign (initlist_t v);
     inline tuple&		operator= (initlist_t v)		{ return assign(v); }

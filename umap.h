@@ -46,7 +46,6 @@ public:
     typedef pair<const_iterator,const_iterator>		const_range_t;
     typedef pair<iterator,iterator>			range_t;
     typedef pair<iterator,bool>				insertrv_t;
-    typedef std::initializer_list<value_type>		initlist_t;
     typedef Comp					key_compare;
     typedef pair_compare_first<value_type,Comp>		value_compare;
     typedef pair_compare_first_key<K,V,Comp>		value_key_compare;
@@ -89,6 +88,7 @@ public:
     inline void			clear (void)			{ base_class::clear(); }
     inline void			swap (map& v)			{ base_class::swap (v); }
 #if HAVE_CPP11
+    using initlist_t = std::initializer_list<value_type>;
     inline			map (map&& v)			: base_class (move(v)) {}
     inline			map (initlist_t v)		: base_class() { insert (v.begin(), v.end()); }
     inline map&			operator= (map&& v)		{ base_class::operator= (move(v)); return *this; }
