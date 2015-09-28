@@ -16,6 +16,8 @@
 
 namespace ustl {
 
+//{{{ auto_ptr -------------------------------------------------------
+
 /// \class auto_ptr umemory.h ustl.h
 /// \ingroup MemoryManagement
 ///
@@ -23,7 +25,8 @@ namespace ustl {
 ///
 /// Calls delete in the destructor; assignment transfers ownership.
 /// This class does not work with void pointers due to the absence
-/// of the required dereference operator.
+/// of the required dereference operator. auto_ptr is deprecated in
+/// c++11; use unique_ptr instead.
 ///
 template <typename T>
 class auto_ptr {
@@ -56,6 +59,97 @@ public:
 private:
     pointer		_p;
 };
+
+//}}}-------------------------------------------------------------------
+//{{{ unique_ptr
+#if HAVE_CPP11
+
+/// \class unique_ptr memory.h stl.h
+/// \ingroup MemoryManagement
+/// \brief A smart pointer.
+/// Calls delete in the destructor; assignment transfers ownership.
+/// This class does not work with void pointers due to the absence
+/// of the required dereference operator.
+template <typename T>
+class unique_ptr {
+public:
+    using element_type		= T;
+    using pointer		= element_type*;
+    using reference		= element_type&;
+public:
+    inline constexpr		unique_ptr (void)		: _p (nullptr) {}
+    inline constexpr explicit	unique_ptr (pointer p)		: _p (p) {}
+    inline			unique_ptr (unique_ptr&& p)	: _p (p.release()) {}
+				unique_ptr (const unique_ptr&) = delete;
+    inline			~unique_ptr (void)		{ delete _p; }
+    inline constexpr pointer	get (void) const		{ return _p; }
+    inline pointer		release (void)			{ auto rv (_p); _p = nullptr; return rv; }
+    inline void			reset (pointer p = nullptr)	{ assert (p != _p || !p); auto ov (_p); _p = p; delete ov; }
+    inline void			swap (unique_ptr& v)		{ swap (_p, v._p); }
+    inline constexpr explicit	operator bool (void) const	{ return _p != nullptr; }
+    inline unique_ptr&		operator= (pointer p)		{ reset (p); return *this; }
+    inline unique_ptr&		operator= (unique_ptr&& p)	{ reset (p.release()); return *this; }
+    unique_ptr&			operator=(const unique_ptr&) = delete;
+    inline constexpr reference	operator* (void) const		{ return *get(); }
+    inline constexpr pointer	operator-> (void) const		{ return get(); }
+    inline constexpr reference	operator[] (size_t i) const	{ return get()[i]; }
+    inline constexpr bool	operator== (const pointer p) const	{ return _p == p; }
+    inline constexpr bool	operator== (const unique_ptr& p) const	{ return _p == p._p; }
+    inline constexpr bool	operator< (const unique_ptr& p) const	{ return _p < p._p; }
+private:
+    pointer			_p;
+};
+
+// array version
+template<typename T>
+class unique_ptr<T[]> {
+public:
+    using element_type		= T;
+    using pointer		= element_type*;
+    using reference		= element_type&;
+public:
+    inline constexpr		unique_ptr (void)		: _p (nullptr) {}
+    inline constexpr explicit	unique_ptr (pointer p)		: _p (p) {}
+    inline			unique_ptr (unique_ptr&& p)	: _p (p.release()) {}
+				unique_ptr(const unique_ptr&) = delete;
+    inline			~unique_ptr (void)		{ delete [] _p; }
+    inline constexpr pointer	get (void) const		{ return _p; }
+    inline pointer			release (void)			{ auto rv (_p); _p = nullptr; return rv; }
+    inline void			reset (pointer p)		{ assert (p != _p); auto ov (_p); _p = p; delete [] ov; }
+    inline void			swap (unique_ptr& v)		{ swap (_p, v._p); }
+    inline constexpr explicit	operator bool (void) const	{ return _p != nullptr; }
+    inline unique_ptr&		operator= (pointer p)		{ reset (p); return *this; }
+    inline unique_ptr&		operator= (unique_ptr&& p)	{ reset (p.release()); return *this; }
+    unique_ptr&			operator=(const unique_ptr&) = delete;
+    inline constexpr reference	operator* (void) const		{ return *_p; }
+    inline constexpr pointer	operator-> (void) const		{ return _p; }
+    inline constexpr reference	operator[] (size_t i) const	{ return _p[i]; }
+    inline constexpr bool	operator== (const pointer p) const	{ return _p == p; }
+    inline constexpr bool	operator== (const unique_ptr& p) const	{ return _p == p._p; }
+    inline constexpr bool	operator< (const unique_ptr& p) const	{ return _p < p._p; }
+private:
+    pointer			_p;
+};
+
+template <typename T> struct __make_unique { using __single_object = unique_ptr<T>; };
+template <typename T> struct __make_unique<T[]> { using __array = unique_ptr<T[]>; };
+template <typename T, size_t N> struct __make_unique<T[N]> { struct __invalid_type {}; };
+
+template <typename T, typename... Args>
+inline typename __make_unique<T>::__single_object
+    make_unique (Args&&... args) { return unique_ptr<T> (new T (forward<Args>(args)...)); }
+
+template <typename T>
+inline typename __make_unique<T>::__array
+    make_unique (size_t n) { return unique_ptr<T> (new remove_extent_t<T>[n]()); }
+
+template <typename T, typename... Args>
+inline typename __make_unique<T>::__invalid_type
+    make_unique (Args&&...) = delete;
+
+#endif // HAVE_CPP11
+//}}}-------------------------------------------------------------------
+//{{{ construct and destroy
 
 /// Calls the placement new on \p p.
 /// \ingroup RawStorageAlgorithms
@@ -120,6 +214,9 @@ inline void destroy (ForwardIterator first, ForwardIterator last) noexcept
     typedef typename iterator_traits<ForwardIterator>::value_type value_type;
     Sdtorsr<ForwardIterator,numeric_limits<value_type>::is_integral>()(first, last);
 }
+
+//}}}-------------------------------------------------------------------
+//{{{ Raw storage algorithms
 
 /// Casts \p p to the type of the second pointer argument.
 template <typename T> inline T* cast_to_type (void* p, const T*) { return (T*) p; }
@@ -190,6 +287,10 @@ ForwardIterator uninitialized_fill_n (ForwardIterator first, size_t n, const T& 
     
 } // namespace ustl
 
+//}}}-------------------------------------------------------------------
+//{{{ initializer_list
+#if HAVE_CPP11
+
 namespace std {	// Internal stuff must be in std::
 
 /// Internal class for compiler support of C++11 initializer lists
@@ -222,3 +323,6 @@ template <typename T>
 inline constexpr const T* end (initializer_list<T> il) noexcept { return il.end(); }
 
 } // namespace std
+
+#endif	// HAVE_CPP11
+//}}}-------------------------------------------------------------------
