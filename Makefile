@@ -6,13 +6,15 @@ SRCS	:= $(wildcard *.cc)
 INCS	:= $(wildcard *.h)
 OBJS	:= $(addprefix $O,$(SRCS:.cc=.o))
 DEPS	:= ${OBJS:.o=.d}
+MKDEPS	:= Makefile Config.mk config.h ${NAME}/config.h $O.d
+ONAME	:= $(notdir $(abspath $O))
 
 ################ Compilation ###########################################
 
 .PHONY: all clean html check distclean maintainer-clean
 
-all:	Config.mk config.h ${NAME}/config.h
-ALLTGTS	:= Config.mk config.h ${NAME}/config.h
+ALLTGTS	:= ${MKDEPS}
+all:	${ALLTGTS}
 
 ifdef BUILD_SHARED
 SLIBL	:= $O$(call slib_lnk,${NAME})
@@ -46,7 +48,6 @@ endif
 
 $O%.o:	%.cc
 	@echo "    Compiling $< ..."
-	@[ -d $(dir $@) ] || mkdir -p $(dir $@)
 	@${CXX} ${CXXFLAGS} -MMD -MT "$(<:.cc=.s) $@" -o $@ -c $<
 
 %.s:	%.cc
@@ -76,10 +77,10 @@ ${RINCI}: ${NAME}.h
 	@${INSTALLDATA} $< $@
 uninstall:	uninstall-incs
 uninstall-incs:
-	@if [ -d ${LIDIR} -o -f ${LIDIR}.h ]; then\
-	    echo "Removing ${LIDIR}/ and ${LIDIR}.h ...";\
+	@if [ -d ${LIDIR} -o -f ${RINCI} ]; then\
+	    echo "Removing ${LIDIR}/ and ${RINCI} ...";\
 	    rm -f ${INCSI} ${RINCI};\
-	    rmdir ${LIDIR};\
+	    ${RMPATH} ${LIDIR};\
 	fi
 endif
 
@@ -112,9 +113,9 @@ endif
 ################ Maintenance ###########################################
 
 clean:
-	@if [ -d $O ]; then\
-	    rm -f ${SLIBT} ${SLINKS} ${OBJS} ${DEPS};\
-	    rmdir $O;\
+	@if [ -h ${ONAME} ]; then\
+	    rm -f ${OBJS} ${DEPS} ${SLIBT} ${SLINKS} ${LIBA} $O.d ${ONAME};\
+	    ${RMPATH} ${BUILDDIR};\
 	fi
 
 html:	${SRCS} ${INCS} ${NAME}doc.in
@@ -126,17 +127,25 @@ distclean:	clean
 maintainer-clean: distclean
 	@if [ -d docs/html ]; then rm -f docs/html/*; rmdir docs/html; fi
 
+$O.d:	${BUILDDIR}/.d
+	@[ -h ${ONAME} ] || ln -sf ${BUILDDIR} ${ONAME}
+${BUILDDIR}/.d:	Makefile
+	@mkdir -p ${BUILDDIR} && touch ${BUILDDIR}/.d
+
 INPLACE_INCS := $(addprefix ${NAME}/,$(filter-out config.h,${INCS}))
 ${INPLACE_INCS}: ${NAME}/%:	${NAME}/config.h
 ${NAME}/config.h:	config.h
 	@echo "    Linking inplace header location ..."
 	@rm -f ${NAME}; ln -s . ${NAME}
 
-${OBJS}:		Makefile Config.mk config.h
+${OBJS}:		${MKDEPS}
 Config.mk:		Config.mk.in
 config.h:		config.h.in
 Config.mk config.h:	configure
-	@if [ -x config.status ]; then echo "Reconfiguring ..."; ./config.status; \
-	else echo "Running configure ..."; ./configure; fi
+	@if [ -x config.status ]; then			\
+	    echo "Reconfiguring ..."; ./config.status;	\
+	else						\
+	    echo "Running configure ..."; ./configure;	\
+	fi
 
--include ${OBJS:.o=.d}
+-include ${DEPS}

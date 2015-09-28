@@ -20,6 +20,7 @@ INSTALL		:= @INSTALL@
 
 INSTALLDATA	:= ${INSTALL} -D -p -m 644
 INSTALLLIB	:= ${INSTALLDATA}
+RMPATH		:= rmdir -p --ignore-fail-on-non-empty
 
 ################ Destination #########################################
 
@@ -30,11 +31,11 @@ LIBDIR		:= @libdir@
 
 WARNOPTS	:= -Wall -Wextra -Woverloaded-virtual -Wpointer-arith\
 		-Wshadow -Wredundant-decls -Wcast-qual @SYSWARNS@
-TGTOPTS		:= @PROCESSOR_OPTS@
+TGTOPTS		:= @PROCESSOR_OPTS@ @CUSTOMINCDIR@
 INLINEOPTS	:= @INLINE_OPTS@
 
 CXXFLAGS	:= ${WARNOPTS} ${TGTOPTS} -fPIC
-LDFLAGS		:=
+LDFLAGS		:= @CUSTOMLIBDIR@
 LIBS		:=
 ifdef DEBUG
     CXXFLAGS	+= -O0 -g
@@ -48,6 +49,7 @@ ifdef NOLIBSTDCPP
     STAL_LIBS	:= @libsupc++@ @libgcc_eh@ @libSystemStubs@
     LIBS	:= ${STAL_LIBS}
 endif
+BUILDDIR	:= @builddir@/${NAME}
 O		:= .o/
 
 slib_lnk	= lib$1.so

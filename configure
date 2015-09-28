@@ -77,7 +77,6 @@ PKG_STRING="$PKG_NAME $PKG_VERSTR"
 CUSTSUBS="s/@PKG_NAME@/$PKG_NAME/g
 s/@PKG_VERSION@/"0x$PKG_MAJOR${PKG_MINOR}0"/g
 s/@PKG_VERSTR@/$PKG_VERSTR/g
-s/@PKG_TARNAME@/$PKG_NAME/g
 s/@PKG_STRING@/$PKG_STRING/g
 s/@PKG_UNAME@/`echo $PKG_NAME|tr a-z A-Z`/g
 s/@PKG_BUGREPORT@/$PKG_BUGREPORT/g
@@ -93,7 +92,7 @@ die() { rm -f config.sed config.cpu config.cpu.c; exit; }
 #### Compile the configurator and generate initial config.sed ########
 
 if [ -z "$CC" ]; then
-    for i in gcc g++ cc c++ c89 c99; do
+    for i in g++ clang++ c++ gcc clang cc; do
 	CC=`which $i 2>/dev/null` && break
     done
 fi
@@ -188,9 +187,6 @@ int main (void)
     printf ("/g\n");
 #if __GNUC__ != 3
     printf ("s/ \\?@libgcc_eh@//g\n");
-#endif
-#if __i386__
-    printf ("s/ \\?-fPIC//g\n");
 #endif
 #if defined(__GNUC__) || defined(__GLIBC_HAVE_LONG_LONG)
     printf (SET(HAVE_LONG_LONG,1) SET(SIZE_OF_LONG_LONG,%zd), sizeof(long long));
@@ -335,8 +331,10 @@ Installation directories:
   --prefix=PREFIX	architecture-independent files [/usr/local]
   --libdir=DIR		object code libraries [PREFIX/lib]
   --includedir=DIR	C header files [PREFIX/include]
-  --oldincludedir=DIR	C header files for non-gcc [/usr/include]
   --gccincludedir=DIR	GCC internal header files [PREFIX/include]
+  --customincdir=DIR	Additional include directory
+  --customlibdir=DIR	Additional library directory
+  --builddir=DIR	location for compiled objects [/tmp/$USER/make]
 "
     PrintComponents
     echo "Report bugs to $PKG_BUGREPORT."
@@ -378,44 +376,33 @@ done
 #### Set directory prefixes ##########################################
 
 echo "s/@prefix@/${ac_var_prefix:=\/usr\/local}/g
-s/@exec_prefix@/${ac_var_exec_prefix:=$ac_var_prefix}/g
-s/@bindir@/$ac_var_exec_prefix\/bin/g
-s/@sbindir@/$ac_var_exec_prefix\/sbin/g
-s/@libexecdir@/$ac_var_exec_prefix\/libexec/g
-s/@datarootdir@/${ac_var_datarootdir:=$ac_var_prefix\/share}/g
-s/@datadir@/$ac_var_datarootdir/g
+s/@bindir@/$ac_var_prefix\/bin/g
+s/@datadir@/${ac_var_datadir:=$ac_var_prefix\/share}/g
 s/@sysconfdir@/$ac_var_prefix\/etc/g
-s/@sharedstatedir@/$ac_var_prefix\/com/g
 s/@localstatedir@/$ac_var_prefix\/var/g
 s/@includedir@/${ac_var_includedir:=$ac_var_prefix\/include}/g
 s/@oldincludedir@/${ac_var_oldincludedir:=\/usr\/include}/g
-s/@docdir@/${ac_var_docdir:=$ac_var_datarootdir\/doc\/$PKG_NAME}/g
-s/@infodir@/$ac_var_datarootdir\/info/g
-s/@htmldir@/$ac_var_docdir/g
-s/@dvidir@/$ac_var_docdir/g
-s/@pdfdir@/$ac_var_docdir/g
-s/@psdir@/$ac_var_docdir/g
-s/@libdir@/${ac_var_libdir:=$ac_var_exec_prefix\/lib}/g
+s/@docdir@/${ac_var_docdir:=$ac_var_datadir\/doc\/$PKG_NAME}/g
+s/@libdir@/${ac_var_libdir:=$ac_var_prefix\/lib}/g
 s/@localedir@/$ac_var_datarootdir\/locale/g
 s/@mandir@/$ac_var_datarootdir\/man/g
+s/@builddir@/\/tmp\/$USER\/make/g
 s/@gccincludedir@/${ac_var_gccincludedir:=`echo $PINCDIR | sed 's/\//\\\&/g'`}/g
 s/@gcclibdir@/${ac_var_gcclibdir:=`echo $PLIBDIR | sed 's/\//\\\&/g'`}/g
 s/@customincdir@/${ac_var_customincdir:=$ac_var_prefix\/include}/g
 s/@customlibdir@/${ac_var_customlibdir:=$ac_var_prefix\/lib}/g" >>config.sed
 
 if [ "$ac_var_prefix" != "\/usr\/local" -a "$ac_var_prefix" != "\/usr" ]; then
-    echo "s/ \?@CUSTOMINCDIR@/ -I$ac_var_customincdir/g
-s/ \?@CUSTOMLIBDIR@/ -L$ac_var_customlibdir/g" >>config.sed
+    echo "s/ \?@CUSTOMINCDIR@/ -I$ac_var_customincdir/g;s/ \?@CUSTOMLIBDIR@/ -L$ac_var_customlibdir/g" >>config.sed
 else
-    echo "s/ \?@CUSTOMINCDIR@//g
-s/ \?@CUSTOMLIBDIR@//g" >>config.sed
+    echo "s/ \?@CUSTOMINCDIR@//g;s/ \?@CUSTOMLIBDIR@//g" >>config.sed
 fi
 
 #### Find headers, libs, programs, and subs ##########################
 
 SubHeadLibsProgs() {
 local INCPATH LIBPATH LIBSUFFIX found pname pcall esciv
-INCPATH="$ac_var_oldincludedir $ac_var_includedir $ac_var_gccincludedir $ac_var_customincdir /usr/include"
+INCPATH="$ac_var_includedir $ac_var_gccincludedir $ac_var_customincdir $ac_var_oldincludedir"
 INCPATH=`echo $INCPATH | sed 's/\\\\//g'`
 for i in $HEADERS; do
     for p in $INCPATH; do
@@ -426,7 +413,7 @@ for i in $HEADERS; do
     done
 done
 
-LIBPATH="`echo $LD_LIBRARY_PATH | tr ':' ' '` $ac_var_libdir $ac_var_gcclibdir $ac_var_customlibdir /lib /usr/lib /usr/local/lib"
+LIBPATH="`echo $LD_LIBRARY_PATH | tr ':' ' '` $ac_var_libdir $ac_var_gcclibdir $ac_var_customlibdir /lib /usr/lib /usr/local/lib /usr/lib/x86_64-linux-gnu"
 LIBPATH=`echo $LIBPATH | sed 's/\\\\//g'`
 LIBSUFFIX="so a la dylib"
 for i in $LIBS; do

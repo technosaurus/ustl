@@ -9,7 +9,7 @@
     #error "This library requires standard C and C++ headers to compile."
 #endif
 #ifndef STDUNIX_HEADERS
-    #error "This library compiles only on UNIX systems."
+    #error "This library requires standard UNIX headers to compile."
 #endif
 #define __STDC_LIMIT_MACROS	// For WCHAR_MIN and WCHAR_MAX in stdint.
 #define __STDC_CONSTANT_MACROS	// For UINT??_C macros to avoid using L and UL suffixes on constants.
