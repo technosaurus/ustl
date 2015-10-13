@@ -92,7 +92,7 @@ die() { rm -f config.sed config.cpu config.cpu.c; exit; }
 #### Compile the configurator and generate initial config.sed ########
 
 if [ -z "$CC" ]; then
-    for i in g++ clang++ c++ gcc clang cc; do
+    for i in gcc clang cc g++ clang++ c++; do
 	CC=`which $i 2>/dev/null` && break
     done
 fi
