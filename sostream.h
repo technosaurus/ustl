@@ -52,7 +52,7 @@ public:
     ostringstream&		write (const void* buffer, size_type size);
     inline ostringstream&	write (const cmemlink& buf)	{ return write (buf.begin(), buf.size()); }
     inline ostringstream&	seekp (off_t p, seekdir d =beg)	{ ostream::seekp(p,d); return *this; }
-    ostringstream&		flush (void)			{ _buffer.resize (pos()); return *this; }
+    virtual ostream&		flush (void) override		{ ostream::flush(); _buffer.resize (pos()); return *this; }
     virtual size_type		overflow (size_type n = 1) override;
 protected:
     inline void			reserve (size_type n)		{ _buffer.reserve (n, false); }
@@ -132,6 +132,7 @@ inline ostringstream& operator<< (ostringstream& os, char* v)
     { os.iwrite (v); return os; }
 
 //----------------------------------------------------------------------
+// Object writer operators
 
 template <> struct object_text_writer<string> {
     inline void operator()(ostringstream& os, const string& v) const { os.iwrite (v); }
@@ -153,5 +154,19 @@ OSTRSTREAM_CAST_OPERATOR (char,			uint8_t)
 #undef OSTRSTREAM_CAST_OPERATOR
 
 //----------------------------------------------------------------------
+// Manipulators
+
+namespace {
+static constexpr const struct Sendl {
+    inline void text_write (ostringstream& os) const	{ os << '\n'; os.flush(); }
+    inline void write (ostream& os) const		{ os.iwrite ('\n'); }
+} endl;
+static constexpr const struct Sflush {
+    inline void text_write (ostringstream& os) const	{ os.flush(); }
+    inline void write (ostringstream& os) const		{ os.flush(); }
+    inline void write (ostream&) const			{ }
+} flush;
+constexpr const char ends = '\0';		///< End of string character.
+} // namespace
 
 } // namespace ustl

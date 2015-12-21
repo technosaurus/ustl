@@ -33,7 +33,7 @@ public:
     inline int		ioctl (const char* rname, int request, int argument)		{ return _file.ioctl (rname, request, argument); }
     inline int		ioctl (const char* rname, int request, void* argument)		{ return _file.ioctl (rname, request, argument); }
     ofstream&		seekp (off_t p, seekdir d = beg);
-    ofstream&		flush (void);
+    virtual ostream&	flush (void) override;
     virtual size_type	overflow (size_type n = 1) override;
 private:
     fstream		_file;

@@ -164,4 +164,7 @@ ostringstream::size_type ostringstream::overflow (size_type n)
     return remaining();
 }
 
+const Sendl endl;
+const Sflush flush;
+
 } // namespace ustl

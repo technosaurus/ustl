@@ -78,6 +78,7 @@ public:
     inline void		swap (ostream& os);
     template <typename T>
     inline void		iwrite (const T& v);
+    inline virtual ostream&	flush (void)		{ return *this; }
     inline virtual streamsize	overflow (streamsize=1)	{ return remaining(); }
     virtual void	unlink (void) noexcept override;
     inline void		link (void* p, streamsize n)	{ memlink::link (p, n); }

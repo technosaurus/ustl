@@ -63,7 +63,7 @@ void ofstream::close (void)
 }
 
 /// Flushes the buffer to the file.
-ofstream& ofstream::flush (void)
+ostream& ofstream::flush (void)
 {
     clear();
     while (good() && pos() && overflow (remaining())) {}
