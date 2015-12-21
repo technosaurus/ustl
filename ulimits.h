@@ -5,6 +5,10 @@
 
 #pragma once
 #include "utypes.h"
+#include "traits.h"
+#if HAVE_CPP11
+    #include "uttraits.h"
+#endif
 
 namespace ustl {
 
@@ -18,13 +22,11 @@ template <typename T> struct __limits_digits10 { enum { value = sizeof(T)*8*643/
 ///
 template <typename T> 
 struct numeric_limits {
-    /// Returns the minimum value for type T.
-    static inline constexpr T min (void)		{ return T(0); }
-    /// Returns the minimum value for type T.
-    static inline constexpr T max (void)		{ return T(0); }
-    static const bool is_signed = false;	///< True if the type is signed.
-    static const bool is_integer = false;	///< True if stores an exact value.
-    static const bool is_integral = false;	///< True if fixed size and cast-copyable.
+    static inline constexpr T min (void)	{ return T(0); }	// Returns the minimum value for type T.
+    static inline constexpr T max (void)	{ return T(0); }	// Returns the minimum value for type T.
+    static const bool is_signed = tm::TypeTraits<T>::isSigned;		///< True if the type is signed.
+    static const bool is_integer = tm::TypeTraits<T>::isIntegral;	///< True if stores an exact value.
+    static const bool is_integral = tm::TypeTraits<T>::isFundamental;	///< True if fixed size and cast-copyable.
     static const unsigned digits = __limits_digits<T>::value;		///< Number of bits in T
     static const unsigned digits10 = __limits_digits10<T>::value;	///< Maximum number of decimal digits in printed version of T
 };

@@ -246,9 +246,11 @@ public:
     enum { isStdFundamental	= isStdArith || isStdFloat || Conversion<T, void>::sameType };
 	
     enum { isUnsignedInt	= isStdUnsignedInt };
+    enum { isUnsigned		= isUnsignedInt || isPointer };
     enum { isSignedInt		= isStdSignedInt };
     enum { isIntegral		= isStdIntegral || isUnsignedInt || isSignedInt };
     enum { isFloat		= isStdFloat };
+    enum { isSigned		= isSignedInt || isFloat };
     enum { isArith		= isIntegral || isFloat };
     enum { isFundamental	= isStdFundamental || isArith };
     

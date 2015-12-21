@@ -170,7 +170,11 @@ template <typename ForwardIterator>
 inline void construct (ForwardIterator first, ForwardIterator last)
 {
     typedef typename iterator_traits<ForwardIterator>::value_type value_type;
+#if HAVE_CPP11
+    if (is_pod<value_type>::value)
+#else
     if (numeric_limits<value_type>::is_integral)
+#endif
 	memset ((void*) first, 0, max(distance(first,last),0)*sizeof(value_type));
     else
 	for (--last; intptr_t(first) <= intptr_t(last); ++first)
@@ -215,7 +219,11 @@ template <typename ForwardIterator>
 inline void destroy (ForwardIterator first, ForwardIterator last) noexcept
 {
     typedef typename iterator_traits<ForwardIterator>::value_type value_type;
+#if HAVE_CPP11
+    Sdtorsr<ForwardIterator,is_pod<value_type>::value>()(first, last);
+#else
     Sdtorsr<ForwardIterator,numeric_limits<value_type>::is_integral>()(first, last);
+#endif
 }
 
 //}}}-------------------------------------------------------------------

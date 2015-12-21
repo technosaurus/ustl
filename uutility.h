@@ -8,10 +8,6 @@
 
 #pragma once
 #include "utypes.h"
-#include "traits.h"
-#if HAVE_CPP11
-    #include "uttraits.h"
-#endif
 #include "ulimits.h"
 #include <assert.h>
 
