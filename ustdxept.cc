@@ -33,7 +33,7 @@ error_message::~error_message (void) noexcept
 void error_message::info (string& msgbuf, const char* fmt) const noexcept
 {
     if (!fmt) fmt = "%s: %s";
-    try { msgbuf.format (fmt, name(), _arg.cdata()); } catch (...) {}
+    try { msgbuf.format (fmt, name(), _arg.c_str()); } catch (...) {}
 }
 
 /// Reads the object from stream \p is.
@@ -60,56 +60,50 @@ size_t error_message::stream_size (void) const noexcept
 
 /// Initializes the empty object. \p operation is the function that returned the error code.
 libc_exception::libc_exception (const char* operation) noexcept
-: exception()
-,_errno (errno)
+: runtime_error (strerror (errno))
 ,_operation (operation)
+,_errno (errno)
 {
     set_format (xfmt_LibcException);
 }
 
 /// Copies object \p v.
 libc_exception::libc_exception (const libc_exception& v) noexcept
-: exception (v)
-,_errno (v._errno)
+: runtime_error (v)
 ,_operation (v._operation)
+,_errno (v._errno)
 {
 }
 
 /// Copies object \p v.
 const libc_exception& libc_exception::operator= (const libc_exception& v)
 {
-    _errno = v._errno;
     _operation = v._operation;
+    _errno = v._errno;
     return *this;
-}
-
-/// Returns a descriptive error message. fmt="%s: %s"
-void libc_exception::info (string& msgbuf, const char* fmt) const noexcept
-{
-    if (!fmt) fmt = "%s: %s";
-    try { msgbuf.format (fmt, _operation, strerror(_errno)); } catch (...) {}
 }
 
 /// Reads the exception from stream \p is.
 void libc_exception::read (istream& is)
 {
-    exception::read (is);
-    is >> _errno >> _operation;
+    runtime_error::read (is);
+    is >> _operation >> ios::align() >> _errno >> ios::align();
 }
 
 /// Writes the exception into stream \p os.
 void libc_exception::write (ostream& os) const
 {
-    exception::write (os);
+    runtime_error::write (os);
     os << _errno << _operation;
+    os << _operation << ios::align() << _errno << ios::align();
 }
 
 /// Returns the size of the written exception.
 size_t libc_exception::stream_size (void) const noexcept
 {
-    return exception::stream_size() +
-	    stream_size_of(_errno) +
-	    stream_size_of(_operation);
+    return runtime_error::stream_size() +
+	    Align (stream_size_of(_errno)) +
+	    Align (stream_size_of(_operation));
 }
 
 //----------------------------------------------------------------------

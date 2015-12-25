@@ -140,21 +140,21 @@ public:
 ///
 /// Contains an errno and description. This is a uSTL extension.
 ///
-class libc_exception : public exception {
+class libc_exception : public runtime_error {
 public:
     explicit		libc_exception (const char* operation) noexcept;
 			libc_exception (const libc_exception& v) noexcept;
     const libc_exception& operator= (const libc_exception& v);
     inline virtual const char*	what (void) const noexcept override { return "libc function failed"; }
-    virtual void	info (string& msgbuf, const char* fmt = nullptr) const noexcept override;
+    inline virtual const char*	name (void) const noexcept override { return _operation.c_str(); }
     virtual void	read (istream& is) override;
     virtual void	write (ostream& os) const override;
     virtual size_t	stream_size (void) const noexcept override;
     inline int		Errno (void) const	{ return _errno; }
-    inline const char*	Operation (void) const	{ return _operation; }
+    inline const char*	Operation (void) const	{ return _operation.c_str(); }
 private:
-    intptr_t		_errno;		///< Error code returned by the failed operation.
-    const char*		_operation;	///< Name of the failed operation.
+    string		_operation;	///< Name of the failed operation.
+    int			_errno;		///< Error code returned by the failed operation.
 };
 
 /// \class file_exception uexception.h ustl.h
