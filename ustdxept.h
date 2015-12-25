@@ -6,13 +6,17 @@
 #pragma once
 #include "uexception.h"
 #include "ustring.h"
+#include "uerror.h"
 
 namespace ustl {
 
-enum { 
-    xfmt_ErrorMessage = 2,
-    xfmt_LogicError = xfmt_ErrorMessage,
-    xfmt_RuntimeError = xfmt_ErrorMessage
+enum {
+    xfmt_ErrorMessage	= xfmt_BadAlloc+1,
+    xfmt_LogicError	= xfmt_ErrorMessage,
+    xfmt_RuntimeError	= xfmt_ErrorMessage,
+    xfmt_SystemError,
+    xfmt_FileException	= 13,
+    xfmt_StreamBoundsException
 };
 
 /// \class logic_error ustdxept.h ustl.h
@@ -133,29 +137,40 @@ public:
     inline virtual const char*	name (void) const noexcept override { return "underflow error"; }
 };
 
-/// \class libc_exception uexception.h ustl.h
+/// \class system_error uexception.h ustl.h
 /// \ingroup Exceptions
 ///
 /// \brief Thrown when a libc function returns an error.
 ///
 /// Contains an errno and description. This is a uSTL extension.
 ///
-class libc_exception : public runtime_error {
+class system_error : public runtime_error {
 public:
-    explicit		libc_exception (const char* operation) noexcept;
-			libc_exception (const libc_exception& v) noexcept;
-    const libc_exception& operator= (const libc_exception& v);
-    inline virtual const char*	what (void) const noexcept override { return "libc function failed"; }
+    explicit		system_error (const char* operation) noexcept;
+    inline virtual const char*	what (void) const noexcept override { return "system error"; }
     inline virtual const char*	name (void) const noexcept override { return _operation.c_str(); }
     virtual void	read (istream& is) override;
     virtual void	write (ostream& os) const override;
     virtual size_t	stream_size (void) const noexcept override;
     inline int		Errno (void) const	{ return _errno; }
     inline const char*	Operation (void) const	{ return _operation.c_str(); }
+#if HAVE_CPP14
+			system_error (error_code ec, const char* operation) noexcept
+			    : runtime_error (ec.message()),_operation(operation),_errno(ec.value()) {}
+    inline              system_error (error_code ec, const string& operation) noexcept
+			    : system_error (ec, operation.c_str()) {}
+    inline              system_error (int ec, const error_category& ecat, const char* operation)
+			    : system_error (error_code(ec,ecat), operation) {}
+    inline              system_error (int ec, const error_category& ecat, const string& operation)
+			    : system_error (ec, ecat, operation.c_str()) {}
+    inline auto		code (void) const	{ return error_code (_errno, system_category()); }
+#endif
 private:
     string		_operation;	///< Name of the failed operation.
     int			_errno;		///< Error code returned by the failed operation.
 };
+
+typedef system_error libc_exception;
 
 /// \class file_exception uexception.h ustl.h
 /// \ingroup Exceptions
@@ -164,7 +179,7 @@ private:
 ///
 /// Contains the file name. This is a uSTL extension.
 ///
-class file_exception : public libc_exception {
+class file_exception : public system_error {
 public:
 			file_exception (const char* operation, const char* filename) noexcept;
     inline virtual const char* what (void) const noexcept override { return "file error"; }
@@ -185,7 +200,7 @@ private:
 /// Only thrown in debug builds unless you say otherwise in config.h
 /// This is a uSTL extension.
 ///
-class stream_bounds_exception : public libc_exception {
+class stream_bounds_exception : public system_error {
 public:
 			stream_bounds_exception (const char* operation, const char* type, uoff_t offset, size_t expected, size_t remaining) noexcept;
     inline virtual const char*	what (void) const noexcept override { return "stream bounds exception"; }

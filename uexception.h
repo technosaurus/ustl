@@ -40,10 +40,7 @@ typedef uint32_t	xfmt_t;
 
 enum {
     xfmt_Exception,
-    xfmt_BadAlloc,
-    xfmt_LibcException		= 12,
-    xfmt_FileException		= 13,
-    xfmt_StreamBoundsException	= 14
+    xfmt_BadAlloc
 };
 
 /// \class exception uexception.h ustl.h

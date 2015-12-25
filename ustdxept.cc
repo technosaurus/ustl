@@ -59,47 +59,34 @@ size_t error_message::stream_size (void) const noexcept
 //----------------------------------------------------------------------
 
 /// Initializes the empty object. \p operation is the function that returned the error code.
-libc_exception::libc_exception (const char* operation) noexcept
+system_error::system_error (const char* operation) noexcept
+#if HAVE_CPP14
+: system_error (errno, system_category(), operation)
+#else
 : runtime_error (strerror (errno))
 ,_operation (operation)
 ,_errno (errno)
+#endif
 {
-    set_format (xfmt_LibcException);
-}
-
-/// Copies object \p v.
-libc_exception::libc_exception (const libc_exception& v) noexcept
-: runtime_error (v)
-,_operation (v._operation)
-,_errno (v._errno)
-{
-}
-
-/// Copies object \p v.
-const libc_exception& libc_exception::operator= (const libc_exception& v)
-{
-    _operation = v._operation;
-    _errno = v._errno;
-    return *this;
+    set_format (xfmt_SystemError);
 }
 
 /// Reads the exception from stream \p is.
-void libc_exception::read (istream& is)
+void system_error::read (istream& is)
 {
     runtime_error::read (is);
     is >> _operation >> ios::align() >> _errno >> ios::align();
 }
 
 /// Writes the exception into stream \p os.
-void libc_exception::write (ostream& os) const
+void system_error::write (ostream& os) const
 {
     runtime_error::write (os);
-    os << _errno << _operation;
     os << _operation << ios::align() << _errno << ios::align();
 }
 
 /// Returns the size of the written exception.
-size_t libc_exception::stream_size (void) const noexcept
+size_t system_error::stream_size (void) const noexcept
 {
     return runtime_error::stream_size() +
 	    Align (stream_size_of(_errno)) +
@@ -110,7 +97,7 @@ size_t libc_exception::stream_size (void) const noexcept
 
 /// Initializes the empty object. \p operation is the function that returned the error code.
 file_exception::file_exception (const char* operation, const char* filename) noexcept
-: libc_exception (operation)
+: system_error (operation)
 {
     memset (_filename, 0, VectorSize(_filename));
     set_format (xfmt_FileException);
@@ -124,16 +111,16 @@ file_exception::file_exception (const char* operation, const char* filename) noe
 void file_exception::info (string& msgbuf, const char* fmt) const noexcept
 {
     if (!fmt) fmt = "%s %s: %s";
-    try { msgbuf.format (fmt, Operation(), Filename(), strerror(Errno())); } catch (...) {}
+    try { msgbuf.format (fmt, Operation(), Filename(), _arg.c_str()); } catch (...) {}
 }
 
 /// Reads the exception from stream \p is.
 void file_exception::read (istream& is)
 {
-    libc_exception::read (is);
+    system_error::read (is);
     string filename;
     is >> filename;
-    is.align (8);
+    is.align();
     strncpy (_filename, filename.c_str(), VectorSize(_filename));
     _filename [VectorSize(_filename)-1] = 0;
 }
@@ -141,23 +128,23 @@ void file_exception::read (istream& is)
 /// Writes the exception into stream \p os.
 void file_exception::write (ostream& os) const
 {
-    libc_exception::write (os);
+    system_error::write (os);
     os << string (_filename);
-    os.align (8);
+    os.align();
 }
 
 /// Returns the size of the written exception.
 size_t file_exception::stream_size (void) const noexcept
 {
-    return libc_exception::stream_size() +
-	    Align (stream_size_of (string (_filename)), 8);
+    return system_error::stream_size() +
+	    Align (stream_size_of (string (_filename)));
 }
 
 //----------------------------------------------------------------------
 
 /// Initializes the empty object. \p operation is the function that returned the error code.
 stream_bounds_exception::stream_bounds_exception (const char* operation, const char* type, uoff_t offset, size_t expected, size_t remaining) noexcept
-: libc_exception (operation)
+: system_error (operation)
 ,_typeName (type)
 ,_offset (offset)
 ,_expected (expected)
@@ -179,21 +166,21 @@ void stream_bounds_exception::info (string& msgbuf, const char* fmt) const noexc
 /// Reads the exception from stream \p is.
 void stream_bounds_exception::read (istream& is)
 {
-    libc_exception::read (is);
+    system_error::read (is);
     is >> _typeName >> _offset >> _expected >> _remaining;
 }
 
 /// Writes the exception into stream \p os.
 void stream_bounds_exception::write (ostream& os) const
 {
-    libc_exception::write (os);
+    system_error::write (os);
     os << _typeName << _offset << _expected << _remaining;
 }
 
 /// Returns the size of the written exception.
 size_t stream_bounds_exception::stream_size (void) const noexcept
 {
-    return libc_exception::stream_size() +
+    return system_error::stream_size() +
 	    stream_size_of(_typeName) +
 	    stream_size_of(_offset) +
 	    stream_size_of(_expected) +

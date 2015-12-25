@@ -555,7 +555,7 @@ situations occasionally arise while debugging where knowing the thrower
 is useful to fix the bug a little faster than otherwise.
 </p><p>
 Finally, there are additional exception classes for dealing with libc
-function errors, file errors, and stream classes. libc_exception can
+function errors, file errors, and stream classes. system_error can
 be thrown whenever a libc function fails, immediately telling you
 what the function call was and the errno description of the failure.
 file_exception, thrown by fstream operations, also contains the file name,
