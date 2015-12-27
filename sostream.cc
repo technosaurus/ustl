@@ -17,7 +17,6 @@ ostringstream::ostringstream (void* p, size_t n) noexcept
 ,_buffer()
 ,_flags (0)
 ,_width (0)
-,_base (10)
 ,_precision (2)
 {
     exceptions (goodbit);
@@ -30,7 +29,6 @@ ostringstream::ostringstream (const string& v)
 ,_buffer (v)
 ,_flags (0)
 ,_width (0)
-,_base (10)
 ,_precision (2)
 {
     exceptions (goodbit);
@@ -78,21 +76,24 @@ void ostringstream::fmtstring (char* fmt, const char* typestr, bool bInteger) co
 	fmt = encode_dec (fmt, _width);
     if (_flags & left)
 	*fmt++ = '-';
-    if (!bInteger) {
+    if (bInteger) {
+	if (_flags & showpos)
+	    *fmt++ = '+';
+	if (_flags & showbase)
+	    *fmt++ = '#';
+    } else {
 	*fmt++ = '.';
 	fmt = encode_dec (fmt, _precision);
     }
     while (*typestr)
 	*fmt++ = *typestr++;
     if (bInteger) {
-	if (_base == 16)
-	    fmt[-1] = 'X';
-	else if (_base == 8)
+	if (_flags & hex)
+	    fmt[-1] = (_flags & uppercase) ? 'X' : 'x';
+	else if (_flags & oct)
 	    fmt[-1] = 'o';
-    } else {
-	if (_flags & scientific)
-	    fmt[-1] = 'E';
-    }
+    } else if (_flags & scientific)
+	fmt[-1] = 'E';
     *fmt = 0;
 }
 

@@ -70,23 +70,13 @@ public:
 	const size_t		_nBytes;
     };
 
-    /// \class base uiosfunc.h ustl.h
-    /// \ingroup StreamFunctors
-    /// \brief Stream functor to allow inline set_base() calls.
-    ///
-    /// Example: os << ios::base(15);
-    ///
-    class base {
-    public:
-	inline explicit		base (size_t n) : _base(n) {}
-	inline ostringstream&	apply (ostringstream& os) const { os.set_base (_base); return os; }
-	inline void		text_write (ostringstream& os) const { apply (os); }
+    // Deprecated way to set output format base. Use setiosflags manipulator instead.
+    struct base {
+	inline explicit		base (size_t n) : _f (n == 16 ? hex : (n == 8 ? oct : dec)) {}
+	inline void		text_write (ostringstream& os) const { os.setf (_f, basefield); }
     private:
-	const size_t		_base;
+	fmtflags		_f;
     };
 };
 
 } // namespace ustl
-
-CAST_STREAMABLE(ustl::ios::fmtflags, uint32_t)
-NUMERIC_LIMITS(ustl::ios::fmtflags, ustl::ios::boolalpha, ustl::ios::floatfield, false, true, true)

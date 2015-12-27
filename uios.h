@@ -14,25 +14,25 @@ class file_exception;
 class ios_base {
 public:
     /// Used to set parameters for stringstreams
-    enum fmtflags {
+    enum fmtflags_bits {
 	boolalpha	= (1 << 0),	///< Boolean values printed as text.
-	dec		= (1 << 1),	///< Decimal number output.
-	fixed		= (1 << 2),	///< Fixed-point float output.
-	hex		= (1 << 3),	///< Hexadecimal number output.
-	internal	= (1 << 4),
-	left		= (1 << 5),	///< Left alignment.
-	oct		= (1 << 6),	///< Octal number output.
-	right		= (1 << 7),	///< Right alignment.
-	scientific	= (1 << 8),	///< Scientific float format.
-	showbase	= (1 << 9),	///< Add 0x or 0 prefixes on hex and octal numbers.
-	showpoint	= (1 << 10),	///< Print decimal point.
-	showpos		= (1 << 11),
-	skipws		= (1 << 12),	///< Skip whitespace when reading.
-	unitbuf		= (1 << 13),
-	uppercase	= (1 << 14),
-	adjustfield	= (1 << 15),
-	basefield	= (1 << 16),
-	floatfield	= (1 << 17)
+	showbase	= (1 << 1),	///< Add 0x or 0 prefixes on hex and octal numbers.
+	showpoint	= (1 << 2),	///< Print decimal point.
+	showpos		= (1 << 3),
+	skipws		= (1 << 4),	///< Skip whitespace when reading.
+	unitbuf		= (1 << 5),
+	uppercase	= (1 << 6),
+	dec		= (1 << 7),	///< Decimal number output.
+	oct		= (1 << 8),	///< Octal number output.
+	hex		= (1 << 9),	///< Hexadecimal number output.
+	fixed		= (1 << 10),	///< Fixed-point float output.
+	scientific	= (1 << 11),	///< Scientific float format.
+	left		= (1 << 12),	///< Left alignment.
+	right		= (1 << 13),	///< Right alignment.
+	internal	= (1 << 14),
+	basefield	= dec| oct| hex,
+	floatfield	= fixed| scientific,
+	adjustfield	= left| right| internal
     };
     /// For file-based streams, specifies fd mode.
     enum openmode_bits {
@@ -68,6 +68,7 @@ public:
     };
 
     typedef uint32_t		openmode;	///< Holds openmode_bits.
+    typedef uint32_t		fmtflags;	///< Holds fmtflags_bits for a string stream.
     typedef uint32_t		iostate;	///< Holds iostate_bits for a file stream.
     typedef file_exception	failure;	///< Thrown by fstream on errors.
 

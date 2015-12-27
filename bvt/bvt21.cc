@@ -65,12 +65,12 @@ void TestUtility (void)
     cout << "BitsInType(uint32_t) = " << BitsInType(uint32_t) << endl;
     cout << "BitsInType(int16_t) = " << BitsInType(int16_t) << endl;
     cout << "BitsInType(char) = " << BitsInType(char) << endl;
-    cout << ios::hex << endl;
+    cout << ios::hex << ios::showbase << endl;
     cout << "BitMask(uint32_t,12) = " << BitMask(uint32_t,12) << endl;
     cout << "BitMask(uint16_t,1) = " << BitMask(uint16_t,1) << endl;
     cout << "BitMask(uint8_t,8) = " << BitMask(uint8_t,8) << endl;
     cout << "BitMask(uint16_t,0) = " << BitMask(uint16_t,0) << endl;
-    cout << endl;
+    cout << resetiosflags (ios::showbase) << endl;
     uint16_t packed16 = 0xCDCD;
     pack_type (uint8_t(0x42), packed16);
     cout << "pack_type(uint8_t, uint16_t) = " << packed16 << endl;
@@ -92,13 +92,14 @@ void TestUtility (void)
     #endif
     cout << endl;
     TestBswap (uint16_t (0x1234));
+    cout << setiosflags (ios::uppercase);
     TestBswap (uint32_t (0x12345678));
     #if HAVE_INT64_T
 	TestBswap (uint64_t (UINT64_C(0x123456789ABCDEF0)));
     #else
 	cout << "No 64bit types available on this platform" << endl;
     #endif
-    cout << ios::dec << endl;
+    cout << ios::dec << ios::showpos << endl;
     cout << "absv(12) = " << absv(12) << endl;
     cout << "absv(-12) = " << absv(-12) << endl;
     cout << "sign(12) = " << sign(12) << endl;

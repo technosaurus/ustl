@@ -13,8 +13,8 @@
 #pragma once
 #include "mistream.h"
 #include "sostream.h"
-#include "uiosfunc.h"
 #include "typeinfo.h"
+#include "uiosfunc.h"
 
 namespace ustl {
 

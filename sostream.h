@@ -20,6 +20,11 @@ class ostringstream : public ostream {
 public:
 				ostringstream (const string& v = "");
 				ostringstream (void* p, size_t n) noexcept;
+    inline fmtflags		flags (void) const		{ return _flags; }
+    inline fmtflags		flags (fmtflags f)		{ fmtflags of (_flags); _flags = f; return of; }
+    inline fmtflags		setf (fmtflags f)		{ fmtflags of (_flags); _flags |= f; return of; }
+    inline fmtflags		unsetf (fmtflags f)		{ fmtflags of (_flags); _flags &= ~f; return of; }
+    inline fmtflags		setf (fmtflags f, fmtflags m)	{ unsetf(m); return setf(f); }
     void			iwrite (uint8_t v);
     void			iwrite (wchar_t v);
     inline void			iwrite (int v)			{ iformat (v); }
@@ -31,7 +36,7 @@ public:
     void			iwrite (bool v);
     inline void			iwrite (const char* s)		{ write (s, strlen(s)); }
     inline void			iwrite (const string& v)	{ write (v.begin(), v.size()); }
-    inline void			iwrite (fmtflags f);
+    inline void			iwrite (fmtflags_bits f);
 #if HAVE_LONG_LONG
     inline void			iwrite (long long v)		{ iformat (v); }
     inline void			iwrite (unsigned long long v)	{ iformat (v); }
@@ -40,7 +45,6 @@ public:
     inline ostringstream&	put (char c)			{ iwrite (uint8_t(c)); return *this; }
     int				vformat (const char* fmt, va_list args);
     int				format (const char* fmt, ...) __attribute__((__format__(__printf__, 2, 3)));
-    inline void			set_base (uint16_t b)		{ _base = b; }
     inline void			set_width (uint16_t w)		{ _width = w; }
     inline void			set_decimal_separator (char)	{ }
     inline void			set_thousand_separator (char)	{ }
@@ -65,10 +69,9 @@ private:
     void			iformat (T v);
 private:
     string			_buffer;	///< The output buffer.
-    uint32_t			_flags;		///< See ios_base::fmtflags.
+    fmtflags			_flags;		///< See ios_base::fmtflags.
     uint16_t			_width;		///< Field width.
-    uint8_t			_base;		///< Numeric base for writing numbers.
-    uint8_t			_precision;	///< Number of digits after the decimal separator.
+    uint16_t			_precision;	///< Number of digits after the decimal separator.
 };
 
 //----------------------------------------------------------------------
@@ -97,17 +100,12 @@ void ostringstream::iformat (T v)
     format (fmt, v);
 }
 
-/// Sets the flag \p f in the stream.
-inline void ostringstream::iwrite (fmtflags f)
+void ostringstream::iwrite (fmtflags_bits f)
 {
-    switch (f) {
-	case oct:	set_base (8);	break;
-	case dec:	set_base (10);	break;
-	case hex:	set_base (16);	break;
-	case left:	_flags |= left; _flags &= ~right; break;
-	case right:	_flags |= right; _flags &= ~left; break;
-	default:	_flags |= f;	break;
-    }
+    if (f & basefield) setf (f, basefield);
+    else if (f & floatfield) setf (f, floatfield);
+    else if (f & adjustfield) setf (f, adjustfield);
+    setf (f);
 }
 
 //----------------------------------------------------------------------
@@ -120,7 +118,9 @@ template <typename T> struct integral_text_object_writer {
 };
 template <typename T>
 inline ostringstream& operator<< (ostringstream& os, const T& v) {
-    typedef typename tm::Select <numeric_limits<T>::is_integral,
+    typedef typename tm::Select <tm::TypeTraits<T>::isFundamental
+					|| tm::TypeTraits<T>::isPointer
+					|| tm::Conversion<T,long>::exists,
 	integral_text_object_writer<T>, object_text_writer<T> >::Result object_writer_t;
     object_writer_t()(os, v);
     return os;
@@ -168,5 +168,18 @@ static constexpr const struct Sflush {
 } flush;
 constexpr const char ends = '\0';		///< End of string character.
 } // namespace
+
+struct setiosflags {
+    inline constexpr setiosflags (ios_base::fmtflags f) : _f(f) {}
+    inline void text_write (ostringstream& os) const	{ os.setf(_f); }
+private:
+    const ios_base::fmtflags _f;
+};
+struct resetiosflags {
+    inline constexpr resetiosflags (ios_base::fmtflags f) : _f(f) {}
+    inline void text_write (ostringstream& os) const	{ os.unsetf(_f); }
+private:
+    const ios_base::fmtflags _f;
+};
 
 } // namespace ustl
