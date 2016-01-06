@@ -9,7 +9,7 @@ else
 bvt/LIBS	:= -L$(abspath $O.) -l${NAME}
 endif
 ifdef BUILD_SHARED
-bvt/LIBS	:= -Wl,--rpath=$(abspath $O.) ${bvt/LIBS}
+bvt/LIBS	:= -Wl,--rpath,$(abspath $O.) ${bvt/LIBS}
 endif
 ifdef NOLIBSTDCPP
 bvt/LIBS	+= ${STAL_LIBS} -lm

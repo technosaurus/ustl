@@ -59,7 +59,7 @@ locale.h alloca.h signal.h stdarg.h stddef.h sys/stat.h sys/types.h stdint.h
 stdlib.h string.h time.h unistd.h math.h stdlib.h sys/mman.h execinfo.h";
 
 # Libraries
-LIBS="supc++ gcc_eh SystemStubs"
+LIBS="supc++ gcc_eh c++abi SystemStubs"
 
 # First pair is used if nothing matches
 PROGS="CC=gcc CC=clang CC=cc CXX=g++ CXX=clang++ CXX=c++ DOXYGEN=doxygen LD=ld AR=ar RANLIB=ranlib RANLIB=touch INSTALL=install"
@@ -284,7 +284,11 @@ if [ "$SYSNAME" = "mac" ]; then
 	s/lib$1.so.${MAJOR}.${MINOR}.${BUILD}/lib$1.${MAJOR}.${MINOR}.${BUILD}.dylib/g
 	s/lib$1.so.${MAJOR}.${MINOR}/lib$1.${MAJOR}.${MINOR}.dylib/g
 	s/lib$1.so.${MAJOR}/lib$1.${MAJOR}.dylib/g
-	s/@SHBLDFL@/-Wl,-single_module -compatibility_version 1 -current_version 1 -install_name $1 -Wl,-Y,1455 -dynamiclib -mmacosx-version-min=10.4/g' >>config.sed
+	s/ -Wl,-gc-sections/ -mmacosx-version-min=10.9/g
+	s/@SHBLDFL@/-Wl,-single_module -compatibility_version 1 -current_version 1 -install_name $1 -Wl,-Y,1455 -dynamiclib -mmacosx-version-min=10.9/g' >>config.sed
+    if [ "$CC" = "clang" ]; then
+	echo 's/ @libsupc++@/ @libc++abi@/g' >>config.sed
+    fi
 fi
 if [ "$SYSNAME" = "alpha" -o "$SYSNAME" = "mac" ]; then
     echo 's/#undef \(SIZE_OF_BOOL\)/#define \1 SIZE_OF_LONG/g' >>config.sed
