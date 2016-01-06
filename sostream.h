@@ -158,10 +158,12 @@ OSTRSTREAM_CAST_OPERATOR (char,			uint8_t)
 
 namespace {
 static constexpr const struct Sendl {
+    inline constexpr Sendl (void) {}
     inline void text_write (ostringstream& os) const	{ os << '\n'; os.flush(); }
     inline void write (ostream& os) const		{ os.iwrite ('\n'); }
 } endl;
 static constexpr const struct Sflush {
+    inline constexpr Sflush (void) {}
     inline void text_write (ostringstream& os) const	{ os.flush(); }
     inline void write (ostringstream& os) const		{ os.flush(); }
     inline void write (ostream&) const			{ }
