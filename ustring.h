@@ -310,7 +310,7 @@ inline type name (const string& str, size_t* idx = nullptr, int base = 10) \
 {					\
     const char* sp = str.c_str();	\
     char* endp = nullptr;		\
-    type r = func (sp, &endp, base);	\
+    type r = func (sp, idx ? &endp : nullptr, base);\
     if (idx)				\
 	*idx = endp - sp;		\
     return r;				\
@@ -329,7 +329,7 @@ inline type name (const string& str, size_t* idx = nullptr) \
 {					\
     const char* sp = str.c_str();	\
     char* endp = nullptr;		\
-    type r = func (sp, &endp);		\
+    type r = func (sp, idx ? &endp : nullptr);\
     if (idx)				\
 	*idx = endp - sp;		\
     return r;				\
