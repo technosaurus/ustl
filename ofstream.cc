@@ -126,31 +126,32 @@ ifstream::ifstream (const char* filename, openmode mode)
 /// Reads at least \p n more bytes and returns available bytes.
 ifstream::size_type ifstream::underflow (size_type n)
 {
-    if (eof())
-	return istringstream::underflow (n);
+    if (!_file.eof()) {
+	const ssize_t freeSpace = _buffer.size() - pos();
+	const ssize_t neededFreeSpace = max (n, _buffer.size() / 2);
+	const size_t oughtToErase = Align (max (0, neededFreeSpace - freeSpace));
+	const size_type nToErase = min (pos(), oughtToErase);
+	_buffer.memlink::erase (_buffer.begin(), nToErase);
+	const uoff_t oldPos (pos() - nToErase);
 
-    const ssize_t freeSpace = _buffer.size() - pos();
-    const ssize_t neededFreeSpace = max (n, _buffer.size() / 2);
-    const size_t oughtToErase = Align (max (0, neededFreeSpace - freeSpace));
-    const size_type nToErase = min (pos(), oughtToErase);
-    _buffer.memlink::erase (_buffer.begin(), nToErase);
-    const uoff_t oldPos (pos() - nToErase);
+	size_type br = oldPos;
+	if (_buffer.size() - br < n) {
+	    _buffer.resize (br + neededFreeSpace);
+	    link (_buffer.data(), streamsize(0));
+	}
+	cout.flush();
 
-    size_type br = oldPos;
-    if (_buffer.size() - br < n) {
-	_buffer.resize (br + neededFreeSpace);
-	link (_buffer.data(), streamsize(0));
+	size_type brn = 1;
+	for (; br < oldPos + n && brn && _file.good(); br += brn)
+	    brn = _file.readsome (_buffer.begin() + br, _buffer.size() - br);
+	clear (_file.rdstate());
+
+	_buffer[br] = 0;
+	link (_buffer.data(), br);
+	seek (oldPos);
     }
-    cout.flush();
-
-    size_type brn = 1;
-    for (; br < oldPos + n && brn && _file.good(); br += brn)
-	brn = _file.readsome (_buffer.begin() + br, _buffer.size() - br);
-    clear (_file.rdstate());
-
-    _buffer[br] = 0;
-    link (_buffer.data(), br);
-    seek (oldPos);
+    if (_file.eof())
+	verify_remaining ("read", _file.name(), n);
     return remaining();
 }
 
