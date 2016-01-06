@@ -45,7 +45,7 @@ public:
     istringstream&		getline (char* p, size_type n, char delim = '\n');
     istringstream&		getline (string& s, char delim = '\n');
     istringstream&		ignore (size_type n, char delim = '\0');
-    inline char			peek (void)	{ int8_t v; iread (v); ungetc(); return v; }
+    inline char			peek (void)	{ char v = get(); ungetc(); return v; }
     inline istringstream&	putback (char)	{ ungetc(); return *this; }
     inline istringstream&	unget (void)	{ ungetc(); return *this; }
     inline void			set_delimiters (const char* delimiters);
