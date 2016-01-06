@@ -19,8 +19,7 @@ void nfree (void* p) noexcept
 	free (p);
 }
 
-#define WEAKALIAS(sym)		__attribute__((weak,alias(sym)))
-
+#if WITHOUT_LIBSTDCPP
 void* operator new (size_t n)	WEAKALIAS("tmalloc");
 void* operator new[] (size_t n)	WEAKALIAS("tmalloc");
 
@@ -29,4 +28,5 @@ void  operator delete[] (void* p) noexcept	WEAKALIAS("nfree");
 #if HAVE_CPP14
 void  operator delete (void* p, size_t n)	WEAKALIAS("nfree");
 void  operator delete[] (void* p, size_t n)	WEAKALIAS("nfree");
-#endif
+#endif // HAVE_CPP14
+#endif // WITHOUT_LIBSTDCPP

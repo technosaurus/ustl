@@ -45,6 +45,7 @@
 	#define __attribute__(p)
     #endif
 #endif
+#define WEAKALIAS(sym)		__attribute__((weak,alias(sym)))
 #if __GNUC__ >= 4
     #define DLL_EXPORT		__attribute__((visibility("default")))
     #define DLL_LOCAL		__attribute__((visibility("hidden")))
