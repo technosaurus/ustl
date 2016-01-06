@@ -95,9 +95,18 @@ ofstream::size_type ofstream::overflow (size_type n)
 
 //----------------------------------------------------------------------
 
+/// Constructs an unattached stream
+ifstream::ifstream (void)
+: istringstream()
+,_buffer (255,'\0')
+,_file()
+{
+    link (_buffer.data(), streamsize(0));
+}
+
 /// Constructs a stream to read from \p ifd.
 ifstream::ifstream (int ifd)
-: istringstream ()
+: istringstream()
 ,_buffer (255,'\0')
 ,_file (ifd)
 {
@@ -106,7 +115,7 @@ ifstream::ifstream (int ifd)
 
 /// Constructs a stream to read from \p filename.
 ifstream::ifstream (const char* filename, openmode mode)
-: istringstream ()
+: istringstream()
 ,_buffer (255,'\0')
 ,_file (filename, mode)
 {
