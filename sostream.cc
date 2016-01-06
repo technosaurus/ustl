@@ -44,7 +44,7 @@ void ostringstream::str (const string& s)
 }
 
 /// Writes a single character into the stream.
-void ostringstream::iwrite (uint8_t v)
+void ostringstream::iwrite (unsigned char v)
 {
     if (remaining() >= 1 || overflow() >= 1)
 	ostream::iwrite (v);

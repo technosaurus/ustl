@@ -87,12 +87,10 @@ inline void istringstream::read_number (T& v)
     skip (distance (ipos(), ilast));
 }
 
-void istringstream::iread (int32_t& v)		{ read_number (v); }
+void istringstream::iread (int& v)		{ read_number (v); }
 void istringstream::iread (double& v)		{ read_number (v); } 
-#if HAVE_INT64_T
-void istringstream::iread (int64_t& v)		{ read_number (v); }
-#endif
-#if HAVE_LONG_LONG && (!HAVE_INT64_T || SIZE_OF_LONG_LONG > 8)
+void istringstream::iread (long& v)		{ read_number (v); }
+#if HAVE_LONG_LONG
 void istringstream::iread (long long& v)	{ read_number (v); }
 #endif
 
