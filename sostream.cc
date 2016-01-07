@@ -154,7 +154,7 @@ void ostringstream::link (void* p, size_type n) noexcept
 /// Attempts to create more output space. Returns remaining().
 ostringstream::size_type ostringstream::overflow (size_type n)
 {
-    if (n > remaining()) {
+    if (n > remaining() && (good() || n <= capacity() - pos())) {
 	const uoff_t oldPos (pos());
 	_buffer.reserve (oldPos + n, false);
 	_buffer.resize (oldPos + n);

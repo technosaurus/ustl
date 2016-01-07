@@ -65,9 +65,7 @@ void ofstream::close (void)
 /// Flushes the buffer to the file.
 ostream& ofstream::flush (void)
 {
-    clear();
-    while (good() && pos() && overflow (remaining())) {}
-    clear (_file.rdstate());
+    while (good() && pos() && overflow (capacity())) {}
     return *this;
 }
 
@@ -83,14 +81,11 @@ ofstream& ofstream::seekp (off_t p, seekdir d)
 /// Called when more buffer space (\p n bytes) is needed.
 ofstream::size_type ofstream::overflow (size_type n)
 {
-    if (eof() || (n > remaining() && n < capacity() - pos()))
-	return ostringstream::overflow (n);
-    size_type bw = _file.write (cdata(), pos());
-    clear (_file.rdstate());
-    erase (begin(), bw);
-    if (remaining() < n)
-	ostringstream::overflow (n);
-    return remaining();
+    if (_file.good() && n > capacity() - pos()) {
+	size_type bw = _file.write (cdata(), pos());
+	erase (begin(), bw);
+    }
+    return ostringstream::overflow (n);
 }
 
 //----------------------------------------------------------------------
@@ -139,7 +134,8 @@ ifstream::size_type ifstream::underflow (size_type n)
 	    _buffer.resize (br + neededFreeSpace);
 	    link (_buffer.data(), streamsize(0));
 	}
-	cout.flush();
+	if (_file.fd() == STDIN_FILENO)
+	    cout.flush();
 
 	size_type brn = 1;
 	for (; br < oldPos + n && brn && _file.good(); br += brn)
