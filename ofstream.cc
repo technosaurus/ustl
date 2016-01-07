@@ -26,7 +26,7 @@ ofstream::ofstream (void)
 : ostringstream()
 ,_file()
 {
-    reserve (255);
+    reserve (default_stream_buffer_size);
 }
 
 /// Constructs a stream for writing to \p ofd
@@ -35,7 +35,7 @@ ofstream::ofstream (int ofd)
 ,_file (ofd)
 {
     clear (_file.rdstate());
-    reserve (255);
+    reserve (default_stream_buffer_size);
 }
 
 /// Constructs a stream for writing to \p filename.
@@ -98,7 +98,7 @@ ofstream::size_type ofstream::overflow (size_type n)
 /// Constructs an unattached stream
 ifstream::ifstream (void)
 : istringstream()
-,_buffer (255,'\0')
+,_buffer (default_stream_buffer_size,'\0')
 ,_file()
 {
     link (_buffer.data(), streamsize(0));
@@ -107,7 +107,7 @@ ifstream::ifstream (void)
 /// Constructs a stream to read from \p ifd.
 ifstream::ifstream (int ifd)
 : istringstream()
-,_buffer (255,'\0')
+,_buffer (default_stream_buffer_size,'\0')
 ,_file (ifd)
 {
     link (_buffer.data(), streamsize(0));
@@ -116,7 +116,7 @@ ifstream::ifstream (int ifd)
 /// Constructs a stream to read from \p filename.
 ifstream::ifstream (const char* filename, openmode mode)
 : istringstream()
-,_buffer (255,'\0')
+,_buffer (default_stream_buffer_size,'\0')
 ,_file (filename, mode)
 {
     clear (_file.rdstate());

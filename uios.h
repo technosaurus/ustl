@@ -67,6 +67,8 @@ public:
 	#endif
     };
 
+    enum { default_stream_buffer_size = 4095 };
+
     typedef uint32_t		openmode;	///< Holds openmode_bits.
     typedef uint32_t		fmtflags;	///< Holds fmtflags_bits for a string stream.
     typedef uint32_t		iostate;	///< Holds iostate_bits for a file stream.
