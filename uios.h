@@ -83,7 +83,7 @@ public:
     inline bool		fail (void) const		{ return rdstate() & (badbit | failbit); }
     inline bool		eof (void) const		{ return rdstate() & eofbit; }
     inline bool		operator! (void) const		{ return fail(); }
-    inline		operator void* (void) const	{ return (void*)(!fail()); }
+    inline		operator bool (void) const	{ return !fail(); }
     inline void		clear (iostate v = goodbit)	{ _state = v; }
     inline void		setstate (iostate v)		{ _state |= v; }
     inline iostate	exceptions (void) const		{ return _exceptions; }

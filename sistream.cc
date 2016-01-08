@@ -164,21 +164,6 @@ istringstream& istringstream::read (void* buffer, size_type sz)
     return *this;
 }
 
-/// Reads characters into \p s until \p delim is found (but not stored or extracted)
-istringstream& istringstream::get (string& v, char delim)
-{
-    v.clear();
-    for (char c; remaining() || underflow();) {
-	istream::iread (c);
-	if (c == delim) {
-	    ungetc();
-	    break;
-	}
-	v += c;
-    }
-    return *this;
-}
-
 /// Reads characters into \p p,n until \p delim is found (but not stored or extracted)
 istringstream& istringstream::get (char* p, size_type n, char delim)
 {
@@ -191,6 +176,19 @@ istringstream& istringstream::get (char* p, size_type n, char delim)
 	*p = c;
     }
     *p = 0;
+    return *this;
+}
+
+/// Reads characters into \p s until \p delim is found (but not stored or extracted)
+istringstream& istringstream::get (string& v, char delim)
+{
+    v.clear();
+    while ((remaining() || underflow()) && ipos()[0] != delim) {
+	const_iterator p = ipos();
+	size_type n = find (p, end(), delim) - p;
+	v.append (p, n);
+	skip (n);
+    }
     return *this;
 }
 

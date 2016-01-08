@@ -93,28 +93,38 @@ ofstream::size_type ofstream::overflow (size_type n)
 /// Constructs an unattached stream
 ifstream::ifstream (void)
 : istringstream()
-,_buffer (default_stream_buffer_size,'\0')
+,_buffer()
 ,_file()
 {
-    link (_buffer.data(), streamsize(0));
+    set_buffer_size (default_stream_buffer_size);
 }
 
 /// Constructs a stream to read from \p ifd.
 ifstream::ifstream (int ifd)
 : istringstream()
-,_buffer (default_stream_buffer_size,'\0')
+,_buffer()
 ,_file (ifd)
 {
-    link (_buffer.data(), streamsize(0));
+    set_buffer_size (default_stream_buffer_size);
 }
 
 /// Constructs a stream to read from \p filename.
 ifstream::ifstream (const char* filename, openmode mode)
 : istringstream()
-,_buffer (default_stream_buffer_size,'\0')
+,_buffer()
 ,_file (filename, mode)
 {
+    set_buffer_size (default_stream_buffer_size);
     clear (_file.rdstate());
+}
+
+/// Set the size of the input buffer
+void ifstream::set_buffer_size (size_type sz)
+{
+    _buffer.resize (sz);
+    #ifndef NDEBUG
+	fill (_buffer.begin(), _buffer.end(), 0xcd);
+    #endif
     link (_buffer.data(), streamsize(0));
 }
 
