@@ -28,8 +28,8 @@ void* operator new[] (size_t n)	{ return tmalloc(n); }
 void  operator delete (void* p) noexcept	{ nfree(p); }
 void  operator delete[] (void* p) noexcept	{ nfree(p); }
 #if HAVE_CPP14
-void  operator delete (void* p, size_t n) noexcept	{ nfree(p); }
-void  operator delete[] (void* p, size_t n) noexcept	{ nfree(p); }
+void  operator delete (void* p, size_t) noexcept	{ nfree(p); }
+void  operator delete[] (void* p, size_t) noexcept	{ nfree(p); }
 #endif // HAVE_CPP14
 
 #else // __APPLE__
