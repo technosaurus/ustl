@@ -288,11 +288,6 @@ UNARY_TRAIT_DEFB (has_virtual_destructor,	__has_virtual_destructor(T));
 UNARY_TRAIT_DEFB (has_nothrow_assign,		__has_nothrow_assign(T));
 UNARY_TRAIT_DEFB (has_nothrow_copy,		__has_nothrow_copy(T));
 UNARY_TRAIT_DEFB (has_nothrow_constructor,	__has_nothrow_constructor(T));
-#if __GNUC__ >= 5
-UNARY_TRAIT_DEFB (is_trivially_copyable,	__is_trivially_copyable(T));
-#else
-UNARY_TRAIT_DEFB (is_trivially_copyable,	__has_trivial_copy(T));
-#endif
 
 template <typename T> struct alignment_of : public integral_constant<size_t, alignof(T)> {};
 
@@ -371,6 +366,8 @@ template <typename T, typename U> struct is_nothrow_assignable : public false_ty
 template <typename T> struct is_nothrow_copy_assignable : public false_type {};
 template <typename T> struct is_nothrow_move_assignable : public false_type {};
 
+#if __GNUC__ >= 5
+UNARY_TRAIT_DEFB (is_trivially_copyable,	__is_trivially_copyable(T));
 template <typename T, typename... Args>
 struct is_trivially_constructible : public integral_constant<bool, __is_trivially_constructible(T, Args...)> {};
 
@@ -390,6 +387,13 @@ struct is_trivially_assignable : public integral_constant<bool, __is_trivially_a
 UNARY_TRAIT_DEFB (is_trivially_default_constructible,	__is_trivially_constructible(T));
 UNARY_TRAIT_DEFB (is_trivially_copy_assignable,	__is_trivially_assignable(T,const T&));
 UNARY_TRAIT_DEFB (is_trivially_move_assignable,	__is_trivially_assignable(T,T&&));
+#else
+UNARY_TRAIT_DEFB (is_trivially_copyable,		__has_trivial_copy(T));
+UNARY_TRAIT_DEFB (is_trivially_default_constructible,	__has_trivial_constructor(T));
+UNARY_TRAIT_DEFB (is_trivially_copy_assignable,		__has_trivial_assign(T));
+UNARY_TRAIT_DEFB (is_trivially_move_assignable,		false);
+#endif
+
 UNARY_TRAIT_DEFB (is_trivially_destructible,	__has_trivial_destructor(T));
 UNARY_TRAIT_DEFB (has_trivial_copy_constructor,	__has_trivial_copy(T));
 UNARY_TRAIT_DEFB (has_trivial_copy_assign,	__has_trivial_assign(T));
