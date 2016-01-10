@@ -41,7 +41,7 @@ void TestString (void)
     cout << s1 << endl;
 
     s1 = "Hello";
-    s2.unlink();
+    s2.deallocate();
     s2 = "World";
     s3 = s1 + s2;
     cout << s3 << endl;
