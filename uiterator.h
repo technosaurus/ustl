@@ -13,15 +13,22 @@ namespace ustl {
 
 //----------------------------------------------------------------------
 
+struct input_iterator_tag {};
+struct output_iterator_tag {};
+struct forward_iterator_tag {};
+struct bidirectional_iterator_tag {};
+struct random_access_iterator_tag {};
+
 /// \struct iterator_traits uiterator.h ustl.h
 /// \brief Contains the type traits of \p Iterator
 ///
 template <typename Iterator>
 struct iterator_traits {
-    typedef typename Iterator::value_type        value_type;
-    typedef typename Iterator::difference_type   difference_type;
-    typedef typename Iterator::pointer           pointer;
-    typedef typename Iterator::reference         reference;
+    typedef typename Iterator::value_type	value_type;
+    typedef typename Iterator::difference_type	difference_type;
+    typedef typename Iterator::pointer		pointer;
+    typedef typename Iterator::reference	reference;
+    typedef typename Iterator::iterator_category iterator_category;
 };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -34,6 +41,7 @@ struct iterator_traits<T*> {
     typedef T*		pointer;
     typedef const T&	const_reference;
     typedef T&		reference;
+    typedef random_access_iterator_tag	iterator_category;
 };
 
 template <typename T>
@@ -44,6 +52,7 @@ struct iterator_traits<const T*> {
     typedef const T*	pointer;
     typedef const T&	const_reference;
     typedef const T&	reference;
+    typedef random_access_iterator_tag	iterator_category;
 };
 
 template <>
@@ -54,6 +63,7 @@ struct iterator_traits<void*> {
     typedef void*		pointer;
     typedef const value_type&	const_reference;
     typedef value_type&		reference;
+    typedef random_access_iterator_tag	iterator_category;
 };
 
 template <>
@@ -64,6 +74,7 @@ struct iterator_traits<const void*> {
     typedef const void*		pointer;
     typedef const value_type&	const_reference;
     typedef const value_type&	reference;
+    typedef random_access_iterator_tag	iterator_category;
 };
 
 #endif
@@ -81,6 +92,7 @@ public:
     typedef typename iterator_traits<Iterator>::difference_type	difference_type;
     typedef typename iterator_traits<Iterator>::pointer		pointer;
     typedef typename iterator_traits<Iterator>::reference	reference;
+    typedef typename iterator_traits<Iterator>::iterator_category iterator_category;
 public:
 				reverse_iterator (void) : _i() {}
     explicit			reverse_iterator (Iterator iter) : _i (iter) {}
@@ -117,6 +129,7 @@ public:
     typedef typename Container::pointer		pointer;
     typedef typename Container::reference	reference;
     typedef typename Container::iterator	iterator;
+    typedef output_iterator_tag			iterator_category;
 public:
     explicit			insert_iterator (Container& ctr, iterator ip) : _rctr (ctr), _ip (ip) {}
     inline insert_iterator&	operator= (typename Container::const_reference v)
@@ -149,6 +162,7 @@ public:
     typedef typename Container::difference_type	difference_type;
     typedef typename Container::pointer		pointer;
     typedef typename Container::reference	reference;
+    typedef output_iterator_tag			iterator_category;
 public:
     explicit				back_insert_iterator (Container& ctr) : _rctr (ctr) {}
     inline back_insert_iterator&	operator= (typename Container::const_reference v)
@@ -184,6 +198,7 @@ public:
     typedef ptrdiff_t			difference_type;
     typedef RandomAccessIterator*	pointer;
     typedef RandomAccessIterator	reference;
+    typedef random_access_iterator_tag	iterator_category;
 public:
 				index_iterate (void) : _base(), _i() {}
 				index_iterate (RandomAccessIterator ibase, IndexIterator iindex) : _base (ibase), _i (iindex) {}

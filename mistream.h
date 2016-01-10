@@ -127,6 +127,7 @@ public:
     typedef const value_type*	pointer;
     typedef const value_type&	reference;
     typedef typename Stream::size_type	size_type;
+    typedef input_iterator_tag	iterator_category;
 public:
 				istream_iterator (void)		: _pis (nullptr), _v() {}
     explicit			istream_iterator (Stream& is)	: _pis (&is), _v() { Read(); }

@@ -101,6 +101,7 @@ public:
     typedef typename iterator_traits<Iterator>::difference_type	difference_type;
     typedef typename iterator_traits<Iterator>::pointer		pointer;
     typedef typename iterator_traits<Iterator>::reference	reference;
+    typedef input_iterator_tag					iterator_category;
 public:
     explicit			utf8in_iterator (const Iterator& is)		: _i (is), _v (0) { Read(); }
 				utf8in_iterator (const utf8in_iterator& i)	: _i (i._i), _v (i._v) {}
@@ -158,6 +159,7 @@ public:
     typedef typename iterator_traits<Iterator>::difference_type	difference_type;
     typedef typename iterator_traits<Iterator>::pointer		pointer;
     typedef typename iterator_traits<Iterator>::reference	reference;
+    typedef output_iterator_tag					iterator_category;
 public:
     explicit			utf8out_iterator (const Iterator& os) : _i (os) {}
 				utf8out_iterator (const utf8out_iterator& i) : _i (i._i) {} 

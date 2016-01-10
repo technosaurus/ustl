@@ -109,6 +109,7 @@ public:
     typedef value_type*		pointer;
     typedef value_type&		reference;
     typedef typename Stream::size_type	size_type;
+    typedef output_iterator_tag	iterator_category;
 public:
     inline explicit		ostream_iterator (Stream& os)
 				    : _os (os) {}
