@@ -46,26 +46,36 @@ public:
     inline bool		compare_exchange_strong (T& expected, T desired, memory_order success, memory_order failure)
 			    { return __atomic_compare_exchange_n (&_v, &expected, desired, false, success, failure); }
     inline T		fetch_add (T v, memory_order order = memory_order_seq_cst )
-			    { return __atomic_fetch_add (&v, v, order); }
+			    { return __atomic_fetch_add (&_v, v, order); }
     inline T		fetch_sub (T v, memory_order order = memory_order_seq_cst )
-			    { return __atomic_fetch_sub (&v, v, order); }
+			    { return __atomic_fetch_sub (&_v, v, order); }
     inline T		fetch_and (T v, memory_order order = memory_order_seq_cst )
-			    { return __atomic_fetch_and (&v, v, order); }
+			    { return __atomic_fetch_and (&_v, v, order); }
     inline T		fetch_or (T v, memory_order order = memory_order_seq_cst )
-			    { return __atomic_fetch_or (&v, v, order); }
+			    { return __atomic_fetch_or (&_v, v, order); }
     inline T		fetch_xor (T v, memory_order order = memory_order_seq_cst )
-			    { return __atomic_fetch_xor (&v, v, order); }
+			    { return __atomic_fetch_xor (&_v, v, order); }
+    inline T		add_fetch (T v, memory_order order = memory_order_seq_cst )
+			    { return __atomic_add_fetch (&_v, v, order); }
+    inline T		sub_fetch (T v, memory_order order = memory_order_seq_cst )
+			    { return __atomic_sub_fetch (&_v, v, order); }
+    inline T		and_fetch (T v, memory_order order = memory_order_seq_cst )
+			    { return __atomic_and_fetch (&_v, v, order); }
+    inline T		or_fetch (T v, memory_order order = memory_order_seq_cst )
+			    { return __atomic_or_fetch (&_v, v, order); }
+    inline T		xor_fetch (T v, memory_order order = memory_order_seq_cst )
+			    { return __atomic_xor_fetch (&_v, v, order); }
     inline		operator T (void) const	{ return load(); }
     inline T		operator= (T v)		{ store(v); return v; }
     inline T		operator++ (int)	{ return fetch_add (1); }
     inline T		operator-- (int)	{ return fetch_sub (1); }
-    inline T		operator++ (void)	{ return fetch_add (1) + 1; }
-    inline T		operator-- (void)	{ return fetch_sub (1) - 1; }
-    inline T		operator+= (T v)	{ return fetch_add (v) + v; }
-    inline T		operator-= (T v)	{ return fetch_sub (v) - v; }
-    inline T		operator&= (T v)	{ return fetch_and (v) & v; }
-    inline T		operator|= (T v)	{ return fetch_or  (v) | v; }
-    inline T		operator^= (T v)	{ return fetch_xor (v) ^ v; }
+    inline T		operator++ (void)	{ return add_fetch (1); }
+    inline T		operator-- (void)	{ return sub_fetch (1); }
+    inline T		operator+= (T v)	{ return add_fetch (v); }
+    inline T		operator-= (T v)	{ return sub_fetch (v); }
+    inline T		operator&= (T v)	{ return and_fetch (v); }
+    inline T		operator|= (T v)	{ return  or_fetch (v); }
+    inline T		operator^= (T v)	{ return xor_fetch (v); }
 };
 #define ATOMIC_VAR_INIT	{0}
 
