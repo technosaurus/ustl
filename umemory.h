@@ -172,7 +172,7 @@ private:
 	pointer	p;
 	size_t	refs;
 	inline constexpr explicit container (pointer np) : p(np),refs(1) {}
-	inline	~container (void) { assert (!refs); delete p; }
+	inline	~container (void) noexcept { assert (!refs); delete p; }
     };
 public:
     inline constexpr		shared_ptr (void)		: _p (nullptr) {}
@@ -195,9 +195,9 @@ public:
     inline shared_ptr&		operator= (pointer p)		{ reset (p); return *this; }
     inline shared_ptr&		operator= (shared_ptr&& p)	{ swap (p); return *this; }
     inline shared_ptr&		operator= (const shared_ptr& p)	{ reset(); _p = p; if (_p) ++_p->refs; return *this; }
-    inline constexpr reference	operator* (void) const		{ assert (get()); return *get(); }
-    inline constexpr pointer	operator-> (void) const		{ assert (get()); return get(); }
-    inline constexpr reference	operator[] (size_t i) const	{ assert (get()); return get()[i]; }
+    inline constexpr reference	operator* (void) const		{ return *get(); }
+    inline constexpr pointer	operator-> (void) const		{ return get(); }
+    inline constexpr reference	operator[] (size_t i) const	{ return get()[i]; }
     inline constexpr bool	operator== (const pointer p) const	{ return get() == p; }
     inline constexpr bool	operator== (const shared_ptr& p) const	{ return get() == p.get(); }
     inline constexpr bool	operator< (const shared_ptr& p) const	{ return get() < p.get(); }
