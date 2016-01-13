@@ -38,6 +38,8 @@ void TestString (void)
     s1 = c_TestString2;
     s1 += c_TestString3;
     s1 += '$';
+    s1 += (unsigned char)'7';
+    s1.pop_back();
     cout << s1 << endl;
 
     s1 = "Hello";

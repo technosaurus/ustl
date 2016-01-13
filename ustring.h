@@ -41,6 +41,7 @@ namespace ustl {
 class string : public memblock {
 public:
     typedef char		value_type;
+    typedef unsigned char	uvalue_type;
     typedef value_type*		pointer;
     typedef const value_type*	const_pointer;
     typedef wchar_t		wvalue_type;
@@ -138,17 +139,21 @@ public:
     inline const string&	operator+= (value_type c)		{ push_back(c); return *this; }
     inline const string&	operator+= (const_pointer s)		{ return append (s); }
     inline const string&	operator+= (wvalue_type c)		{ return append (1, c); }
+    inline const string&	operator+= (uvalue_type c)		{ return operator+= (value_type(c)); }
     inline const string&	operator+= (const_wpointer s)		{ return append (s); }
     inline string		operator+ (const string& s) const;
     inline bool			operator== (const string& s) const	{ return memblock::operator== (s); }
     bool			operator== (const_pointer s) const noexcept;
     inline bool			operator== (value_type c) const		{ return size() == 1 && c == at(0); }
+    inline bool			operator== (uvalue_type c) const	{ return operator== (value_type(c)); }
     inline bool			operator!= (const string& s) const	{ return !operator== (s); }
     inline bool			operator!= (const_pointer s) const	{ return !operator== (s); }
     inline bool			operator!= (value_type c) const		{ return !operator== (c); }
+    inline bool			operator!= (uvalue_type c) const	{ return !operator== (c); }
     inline bool			operator< (const string& s) const	{ return 0 > compare (s); }
     inline bool			operator< (const_pointer s) const	{ return 0 > compare (s); }
     inline bool			operator< (value_type c) const		{ return 0 > compare (begin(), end(), &c, &c + 1); }
+    inline bool			operator< (uvalue_type c) const		{ return operator< (value_type(c)); }
     inline bool			operator> (const_pointer s) const	{ return 0 < compare (s); }
     inline string&		insert (pos_type ip, size_type n, value_type c)				{ insert (iat(ip), n, c); return *this; }
     inline string&		insert (pos_type ip, const_pointer s)					{ insert (iat(ip), s, s + strlen(s)); return *this; }
@@ -184,21 +189,27 @@ public:
     inline void			swap (string& v)					{ memblock::swap (v); }
     pos_type			find (value_type c, pos_type pos = 0) const noexcept;
     pos_type			find (const string& s, pos_type pos = 0) const noexcept;
+    inline pos_type		find (uvalue_type c, pos_type pos = 0) const noexcept		{ return find (value_type(c), pos); }
     inline pos_type		find (const_pointer p, pos_type pos, size_type count) const	{ string sp; sp.link (p,count); return find (sp, pos); }
     pos_type			rfind (value_type c, pos_type pos = npos) const noexcept;
     pos_type			rfind (const string& s, pos_type pos = npos) const noexcept;
+    inline pos_type		rfind (uvalue_type c, pos_type pos = npos) const noexcept	{ return rfind (value_type(c), pos); }
     inline pos_type		rfind (const_pointer p, pos_type pos, size_type count) const	{ string sp; sp.link (p,count); return rfind (sp, pos); }
     pos_type			find_first_of (const string& s, pos_type pos = 0) const noexcept;
     inline pos_type		find_first_of (value_type c, pos_type pos = 0) const				{ string sp (1, c); return find_first_of(sp,pos); }
+    inline pos_type		find_first_of (uvalue_type c, pos_type pos = 0) const				{ return find_first_of (value_type(c), pos); }
     inline pos_type		find_first_of (const_pointer p, pos_type pos, size_type count) const		{ string sp; sp.link (p,count); return find_first_of (sp, pos); }
     pos_type			find_first_not_of (const string& s, pos_type pos = 0) const noexcept;
     inline pos_type		find_first_not_of (value_type c, pos_type pos = 0) const			{ string sp (1, c); return find_first_not_of(sp,pos); }
+    inline pos_type		find_first_not_of (uvalue_type c, pos_type pos = 0) const			{ return find_first_not_of (value_type(c), pos); }
     inline pos_type		find_first_not_of (const_pointer p, pos_type pos, size_type count) const	{ string sp; sp.link (p,count); return find_first_not_of (sp, pos); }
     pos_type			find_last_of (const string& s, pos_type pos = npos) const noexcept;
-    inline pos_type		find_last_of (value_type c, pos_type pos = 0) const				{ string sp (1, c); return find_last_of(sp,pos); }
+    inline pos_type		find_last_of (value_type c, pos_type pos = npos) const				{ string sp (1, c); return find_last_of(sp,pos); }
+    inline pos_type		find_last_of (uvalue_type c, pos_type pos = npos) const				{ return find_last_of (value_type(c), pos); }
     inline pos_type		find_last_of (const_pointer p, pos_type pos, size_type count) const		{ string sp; sp.link (p,count); return find_last_of (sp, pos); }
     pos_type			find_last_not_of (const string& s, pos_type pos = npos) const noexcept;
-    inline pos_type		find_last_not_of (value_type c, pos_type pos = 0) const				{ string sp (1, c); return find_last_not_of(sp,pos); }
+    inline pos_type		find_last_not_of (value_type c, pos_type pos = npos) const			{ string sp (1, c); return find_last_not_of(sp,pos); }
+    inline pos_type		find_last_not_of (uvalue_type c, pos_type pos = npos) const			{ return find_last_not_of (value_type(c), pos); }
     inline pos_type		find_last_not_of (const_pointer p, pos_type pos, size_type count) const		{ string sp; sp.link (p,count); return find_last_not_of (sp, pos); }
     int				vformat (const char* fmt, va_list args);
     int				format (const char* fmt, ...) __attribute__((__format__(__printf__, 2, 3)));
