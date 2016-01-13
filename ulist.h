@@ -71,7 +71,7 @@ void list<T>::splice (iterator ip, list<T>& l, iterator first, iterator last)
 	first = l.begin();
     if (!last)
 	last = l.end();
-    insert (ip, first, last);
+    l.insert (ip, first, last);
     l.erase (first, last);
 }
 
