@@ -161,12 +161,13 @@ inline ostringstream& container_element_text_write (ostringstream& os, const T& 
 template <typename Container>
 ostringstream& container_text_write (ostringstream& os, const Container& v)
 {
-    typename Container::const_iterator i = v.begin();
     os << '(';
-    while (i < v.end()) {
+    for (typename Container::const_iterator i = v.begin(); i < v.end(); ++i) {
+	if (i != v.begin())
+	    os << ',';
 	container_element_text_write (os, *i);
-	os << ",)"[++i == v.end()];
     }
+    os << ')';
     return os;
 }
 
