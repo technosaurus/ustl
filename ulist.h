@@ -59,8 +59,8 @@ public:
 template <typename T>
 void list<T>::merge (list& l)
 {
-    insert_space (begin(), l.size());
-    ::ustl::merge (iat(l.size()), end(), l.begin(), l.end(), begin());
+    this->insert_space (begin(), l.size());
+    ::ustl::merge (this->iat(l.size()), end(), l.begin(), l.end(), begin());
 }
 
 /// Moves the range [first, last) from \p l to this list at \p ip.
@@ -71,7 +71,7 @@ void list<T>::splice (iterator ip, list<T>& l, iterator first, iterator last)
 	first = l.begin();
     if (!last)
 	last = l.end();
-    insert (ip, first, last);
+    this->insert (ip, first, last);
     l.erase (first, last);
 }
 
