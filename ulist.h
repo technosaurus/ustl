@@ -75,6 +75,11 @@ void list<T>::splice (iterator ip, list<T>& l, iterator first, iterator last)
     l.erase (first, last);
 }
 
-#define deque list ///< list has all the functionality provided by deque
+#if HAVE_CPP11
+    template <typename T> using deque = list<T>;
+#else
+    #define deque list ///< list has all the functionality provided by deque
+#endif
+
 
 } // namespace ustl
