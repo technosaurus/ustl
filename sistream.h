@@ -62,6 +62,7 @@ public:
     inline void			set_thousand_separator (char)	{ }
     istringstream&		read (void* buffer, size_type size);
     inline istringstream&	read (memlink& buf)		{ return read (buf.begin(), buf.size()); }
+    inline size_type		gcount (void) const		{ return _gcount; }
     inline istringstream&	seekg (off_t p, seekdir d =beg)	{ istream::seekg(p,d); return *this; }
     inline int			sync (void)			{ skip (remaining()); return 0; }
 protected:
@@ -72,6 +73,7 @@ private:
     template <typename T> void	read_number (T& v);
 private:
     char			_delimiters [c_MaxDelimiters];
+    size_type			_gcount;
     uint8_t			_base;
 };
 

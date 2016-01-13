@@ -12,7 +12,7 @@ double:  123456789123456.78
 short:   1234
 u_short: 1234
 get:     Line .to read with get
-getline: Line to read with getline
+getline: "Line to read with getline", 26 chars read
 
 Dump:
 c

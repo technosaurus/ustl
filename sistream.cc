@@ -15,6 +15,7 @@ const char ios_base::c_DefaultDelimiters [istringstream::c_MaxDelimiters] = DEFA
 /// Default constructor.
 istringstream::istringstream (void) noexcept
 : istream()
+,_gcount (0)
 ,_base (0)
 {
     exceptions (goodbit);
@@ -23,6 +24,7 @@ istringstream::istringstream (void) noexcept
 
 istringstream::istringstream (const void* p, size_type n) noexcept
 : istream()
+,_gcount (0)
 ,_base (0)
 {
     exceptions (goodbit);
@@ -32,6 +34,7 @@ istringstream::istringstream (const void* p, size_type n) noexcept
 
 istringstream::istringstream (const cmemlink& source) noexcept
 : istream()
+,_gcount (0)
 ,_base (0)
 {
     exceptions (goodbit);
@@ -160,14 +163,15 @@ istringstream& istringstream::read (void* buffer, size_type sz)
     if (remaining() < sz && underflow(sz) < sz)
 	verify_remaining ("read", "", sz);
     else
-	istream::read (buffer, sz);
+	istream::read (buffer, _gcount = sz);
     return *this;
 }
 
 /// Reads characters into \p p,n until \p delim is found (but not stored or extracted)
 istringstream& istringstream::get (char* p, size_type n, char delim)
 {
-    for (char c, *pend = p+n-1; p < pend && (remaining() || underflow()); ++p) {
+    _gcount = 0;
+    for (char c, *pend = p+n-1; p < pend && (remaining() || underflow()); ++p, ++_gcount) {
 	istream::iread (c);
 	if (c == delim) {
 	    ungetc();
@@ -182,12 +186,14 @@ istringstream& istringstream::get (char* p, size_type n, char delim)
 /// Reads characters into \p s until \p delim is found (but not stored or extracted)
 istringstream& istringstream::get (string& v, char delim)
 {
+    _gcount = 0;
     v.clear();
     while ((remaining() || underflow()) && ipos()[0] != delim) {
 	const_iterator p = ipos();
 	size_type n = find (p, end(), delim) - p;
 	v.append (p, n);
 	skip (n);
+	_gcount += n;
     }
     return *this;
 }
@@ -196,8 +202,10 @@ istringstream& istringstream::get (string& v, char delim)
 istringstream& istringstream::getline (string& s, char delim)
 {
     get (s, delim);
-    if (remaining() && ipos()[0] == delim)
-	skip(1);
+    if (remaining() && ipos()[0] == delim) {
+	skip (1);
+	++_gcount;
+    }
     return *this;
 }
 
@@ -205,15 +213,19 @@ istringstream& istringstream::getline (string& s, char delim)
 istringstream& istringstream::getline (char* p, size_type n, char delim)
 {
     get (p, n, delim);
-    if (remaining() && ipos()[0] == delim)
-	skip(1);
+    if (remaining() && ipos()[0] == delim) {
+	skip (1);
+	++_gcount;
+    }
     return *this;
 }
 
 /// Extract until \p delim or \p n chars have been read.
 istringstream& istringstream::ignore (size_type n, char delim)
 {
-    while (n-- && (remaining() || underflow()) && get() != delim) ;
+    _gcount = n;
+    while (n-- && (remaining() || underflow()) && get() != delim) {}
+    _gcount -= n;
     return *this;
 }
 

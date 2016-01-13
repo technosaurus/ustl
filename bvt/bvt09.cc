@@ -85,7 +85,7 @@ void TestStringStreams (void)
     cout.format ("short:   %d\n", static_cast<int>(si));
     cout.format ("u_short: %d\n", static_cast<int>(usi));
     cout << "get:     " << gbuf << '.' << gstr << endl;
-    cout << "getline: " << glstr << endl;
+    cout << "getline: \"" << glstr << "\", " << is.gcount() << " chars read" << endl;
     cout << endl;
 
     cout << "Dump:" << endl;
