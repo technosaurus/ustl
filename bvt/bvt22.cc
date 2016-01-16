@@ -64,7 +64,7 @@ void TestMatrixAlgorithms (void)
     cout << "========================================\n"
 	    "Testing 4x4 float matrix:\n"
 	    "========================================\n";
-    cout.set_precision (1);
+    cout << setprecision(1);
     TestMatrix<4,4,float>();
 }
 

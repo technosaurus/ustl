@@ -63,8 +63,6 @@ public:
     inline char			peek (void)	{ char v = get(); ungetc(); return v; }
     inline istringstream&	unget (void)	{ ungetc(); return *this; }
     inline void			set_delimiters (const char* delimiters);
-    inline void			set_decimal_separator (char)	{ }
-    inline void			set_thousand_separator (char)	{ }
     istringstream&		read (void* buffer, size_type size);
     inline istringstream&	read (memlink& buf)		{ return read (buf.begin(), buf.size()); }
     inline size_type		gcount (void) const		{ return _gcount; }

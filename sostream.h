@@ -53,9 +53,11 @@ public:
     inline ostringstream&	put (char c)			{ iwrite (uint8_t(c)); return *this; }
     int				vformat (const char* fmt, va_list args);
     int				format (const char* fmt, ...) __attribute__((__format__(__printf__, 2, 3)));
+    inline uint16_t		width (void) const		{ return _width; }
+    inline void			width (uint16_t w)		{ _width = w; }
     inline void			set_width (uint16_t w)		{ _width = w; }
-    inline void			set_decimal_separator (char)	{ }
-    inline void			set_thousand_separator (char)	{ }
+    inline uint16_t		precision (void) const		{ return _precision; }
+    inline void			precision (uint16_t v)		{ _precision = v; }
     inline void			set_precision (uint16_t v)	{ _precision = v; }
     void			link (void* p, size_type n) noexcept;
     inline void			link (memlink& l)		{ link (l.data(), l.writable_size()); }
@@ -182,6 +184,20 @@ struct resetiosflags {
     inline void text_write (ostringstream& os) const	{ os.unsetf(_f); }
 private:
     const ios_base::fmtflags _f;
+};
+class setw {
+    uint16_t _w;
+public:
+    inline constexpr setw (uint16_t w)			: _w(w) {}
+    inline void text_write (ostringstream& os) const	{ os.width(_w); }
+    inline void write (ostringstream& os) const		{ os.width(_w); }
+};
+class setprecision {
+    uint16_t _p;
+public:
+    inline constexpr setprecision (uint16_t p)		: _p(p) {}
+    inline void text_write (ostringstream& os) const	{ os.precision(_p); }
+    inline void write (ostringstream& os) const		{ os.precision(_p); }
 };
 
 } // namespace ustl

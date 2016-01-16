@@ -64,7 +64,7 @@ public:
     class width {
     public:
 	inline explicit		width (size_t nBytes) : _nBytes(nBytes) {}
-	inline ostringstream&	apply (ostringstream& os) const { os.set_width (_nBytes); return os; }
+	inline ostringstream&	apply (ostringstream& os) const { os.width (_nBytes); return os; }
 	inline void		text_write (ostringstream& os) const { apply (os); }
     private:
 	const size_t		_nBytes;
