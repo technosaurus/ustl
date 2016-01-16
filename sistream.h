@@ -24,6 +24,11 @@ public:
 				istringstream (void) noexcept;
 				istringstream (const void* p, size_type n) noexcept;
     explicit			istringstream (const cmemlink& source) noexcept;
+    inline fmtflags		flags (void) const		{ return _flags; }
+    inline fmtflags		flags (fmtflags f)		{ fmtflags of (_flags); _flags = f; return of; }
+    inline fmtflags		setf (fmtflags f)		{ fmtflags of (_flags); _flags |= f; return of; }
+    inline fmtflags		unsetf (fmtflags f)		{ fmtflags of (_flags); _flags &= ~f; return of; }
+    inline fmtflags		setf (fmtflags f, fmtflags m)	{ unsetf(m); return setf(f); }
     inline void			iread (char& v)			{ v = skip_delimiters(); }
     inline void			iread (unsigned char& v)	{ char c; iread(c); v = c; }
     void			iread (int& v);
@@ -45,6 +50,7 @@ public:
     void			iread (bool& v);
     void			iread (wchar_t& v);
     void			iread (string& v);
+    inline void			iread (fmtflags_bits f);
     inline string		str (void) const	{ string s; s.link (*this); return s; }
     inline istringstream&	str (const string& s)	{ link (s); return *this; }
     inline istringstream&	get (char& c)	{ return read (&c, sizeof(c)); }
@@ -57,7 +63,6 @@ public:
     inline char			peek (void)	{ char v = get(); ungetc(); return v; }
     inline istringstream&	unget (void)	{ ungetc(); return *this; }
     inline void			set_delimiters (const char* delimiters);
-    inline void			set_base (short base);
     inline void			set_decimal_separator (char)	{ }
     inline void			set_thousand_separator (char)	{ }
     istringstream&		read (void* buffer, size_type size);
@@ -72,21 +77,23 @@ private:
     inline bool			is_delimiter (char c) const noexcept;
     template <typename T> void	read_number (T& v);
 private:
+    fmtflags			_flags;
+    uint32_t			_gcount;
     char			_delimiters [c_MaxDelimiters];
-    size_type			_gcount;
-    uint8_t			_base;
 };
 
 //----------------------------------------------------------------------
 
-/// Sets the numeric base used to read numbers.
-inline void istringstream::set_base (short base)
+void istringstream::iread (fmtflags_bits f)
 {
-    _base = base;
+    if (f & basefield) setf (f, basefield);
+    else if (f & floatfield) setf (f, floatfield);
+    else if (f & adjustfield) setf (f, adjustfield);
+    setf (f);
 }
 
 /// Sets delimiters to the contents of \p delimiters.
-inline void istringstream::set_delimiters (const char* delimiters)
+void istringstream::set_delimiters (const char* delimiters)
 {
 #if (__i386__ || __x86_64__) && CPU_HAS_SSE && HAVE_VECTOR_EXTENSIONS
     typedef uint32_t v16ud_t __attribute__((vector_size(16)));

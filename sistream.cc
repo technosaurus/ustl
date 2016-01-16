@@ -15,8 +15,8 @@ const char ios_base::c_DefaultDelimiters [istringstream::c_MaxDelimiters] = DEFA
 /// Default constructor.
 istringstream::istringstream (void) noexcept
 : istream()
+,_flags (0)
 ,_gcount (0)
-,_base (0)
 {
     exceptions (goodbit);
     set_delimiters (DEFAULT_DELIMITERS);
@@ -24,8 +24,8 @@ istringstream::istringstream (void) noexcept
 
 istringstream::istringstream (const void* p, size_type n) noexcept
 : istream()
+,_flags (0)
 ,_gcount (0)
-,_base (0)
 {
     exceptions (goodbit);
     relink (p, n);
@@ -34,8 +34,8 @@ istringstream::istringstream (const void* p, size_type n) noexcept
 
 istringstream::istringstream (const cmemlink& source) noexcept
 : istream()
+,_flags (0)
 ,_gcount (0)
-,_base (0)
 {
     exceptions (goodbit);
     relink (source);
@@ -65,12 +65,12 @@ namespace {
 
 typedef istringstream::iterator issiter_t;
 template <typename T>
-inline void str_to_num (issiter_t i, issiter_t* iend, uint8_t base, T& v)
+inline void str_to_num (issiter_t i, issiter_t* iend, unsigned base, T& v)
     { v = strtol (i, const_cast<char**>(iend), base); }
-template <> inline void str_to_num (issiter_t i, issiter_t* iend, uint8_t, double& v)
+template <> inline void str_to_num (issiter_t i, issiter_t* iend, unsigned, double& v)
     { v = strtod (i, const_cast<char**>(iend)); }
-#if HAVE_LONG_LONG && (!HAVE_INT64_T || SIZE_OF_LONG_LONG > 8)
-template <> inline void str_to_num (issiter_t i, issiter_t* iend, uint8_t base, long long& v)
+#if HAVE_LONG_LONG && SIZE_OF_LONG_LONG > SIZE_OF_LONG
+template <> inline void str_to_num (issiter_t i, issiter_t* iend, unsigned base, long long& v)
     { v = strtoll (i, const_cast<char**>(iend), base); }
 #endif
 
@@ -85,7 +85,7 @@ inline void istringstream::read_number (T& v)
     ungetc();
     iterator ilast;
     do {
-	str_to_num<T> (ipos(), &ilast, _base, v);
+	str_to_num<T> (ipos(), &ilast, (_flags & hex) ? 16 : (_flags & oct) ? 8 : 0, v);
     } while (ilast == end() && underflow());
     skip (distance (ipos(), ilast));
 }
