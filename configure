@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 # This file is free software, distributed under the MIT License.
 ######################################################################
@@ -88,6 +88,8 @@ s/@PKG_MINOR@/$PKG_MINOR/g"
 ######################################################################
 
 die() { rm -f config.sed config.cpu config.cpu.c; exit; }
+sub() { printf "%s\n" "$1">>config.sed; }
+escpath() { echo $1 | sed 's/\//\\\//g'; }
 
 #### Compile the configurator and generate initial config.sed ########
 
@@ -261,50 +263,47 @@ case "$SYSNAME" in
 esac
 
 if [ "$SYSNAME" = "sun" ]; then
-    echo "s/-Wredundant-decls/-Wno-redundant-decls/g
-	s/@SHBLDFL@/-G/g" >>config.sed
+    sub "s/-Wredundant-decls/-Wno-redundant-decls/;s/@SHBLDFL@/-G/"
 else
-    echo 's/#undef \(HAVE_THREE_CHAR_TYPES\)/#define \1 1/g' >>config.sed
+    sub "s/#undef \(HAVE_THREE_CHAR_TYPES\)/#define \1 1/"
 fi
 if [ "$SYSNAME" = "bsd" ]; then
-    echo 's/ @libgcc_eh@//g
-	s/#define WITHOUT_LIBSTDCPP 1/#undef WITHOUT_LIBSTDCPP/g
-	s/NOLIBSTDCPP	= -nodefaultlibs /#NOLIBSTDCPP	= -nodefaultlibs/g
-	s/-Wredundant-decls/-Wno-redundant-decls/g
-	s/-Winline/-Wno-inline/g
-	s/#define HAVE_VA_COPY 1/#undef HAVE_VA_COPY/g' >>config.sed
+    sub 's/ @libgcc_eh@//g
+	s/#define WITHOUT_LIBSTDCPP 1/#undef WITHOUT_LIBSTDCPP/
+	s/NOLIBSTDCPP	= -nodefaultlibs /#NOLIBSTDCPP	= -nodefaultlibs/
+	s/-Wredundant-decls/-Wno-redundant-decls/
+	s/-Winline/-Wno-inline/
+	s/#define HAVE_VA_COPY 1/#undef HAVE_VA_COPY/'
 fi
 if [ "$SYSNAME" = "linux" -o "$SYSNAME" = "bsd" ]; then
-    echo 's/@SHBLDFL@/-shared -Wl,-soname=$1/g' >>config.sed
+    sub 's/@SHBLDFL@/-shared -Wl,-soname=$1/'
 elif [ "$SYSNAME" = "alpha" ]; then
-    echo "s/BUILD_SHARED	= 1 /#BUILD_SHARED	= 1/g
-	s/#BUILD_STATIC	= 1/BUILD_STATIC	= 1 /g" >>config.sed
+    sub "s/BUILD_SHARED	= 1 /#BUILD_SHARED	= 1/;s/#BUILD_STATIC	= 1/BUILD_STATIC	= 1 /"
 fi
 if [ "$SYSNAME" = "mac" ]; then
-    echo 's/ @libgcc_eh@//g
+    sub 's/ @libgcc_eh@//g
 	s/lib$1.so/lib$1.dylib/g
 	s/lib$1.so.${MAJOR}.${MINOR}.${BUILD}/lib$1.${MAJOR}.${MINOR}.${BUILD}.dylib/g
 	s/lib$1.so.${MAJOR}.${MINOR}/lib$1.${MAJOR}.${MINOR}.dylib/g
 	s/lib$1.so.${MAJOR}/lib$1.${MAJOR}.dylib/g
 	s/ -s -Wl,-gc-sections/ -mmacosx-version-min=10.9/g
-	s/@SHBLDFL@/-Wl,-single_module -compatibility_version 1 -current_version 1 -install_name $1 -Wl,-Y,1455 -dynamiclib -mmacosx-version-min=10.9/g' >>config.sed
+	s/@SHBLDFL@/-Wl,-single_module -compatibility_version 1 -current_version 1 -install_name $1 -Wl,-Y,1455 -dynamiclib -mmacosx-version-min=10.9/g'
     if [ "$CC" = "clang" ]; then
-	echo 's/ @libsupc++@/ @libc++abi@/g' >>config.sed
+	sub "s/ @libsupc++@/ @libc++abi@/g"
     fi
 fi
 if [ "$SYSNAME" = "alpha" -o "$SYSNAME" = "mac" ]; then
-    echo 's/#undef \(SIZE_OF_BOOL\)/#define \1 SIZE_OF_LONG/g' >>config.sed
+    sub "s/#undef \(SIZE_OF_BOOL\)/#define \1 SIZE_OF_LONG/"
 else
-    echo 's/#undef \(SIZE_OF_BOOL\)/#define \1 SIZE_OF_CHAR/g' >>config.sed
+    sub "s/#undef \(SIZE_OF_BOOL\)/#define \1 SIZE_OF_CHAR/"
 fi
 if [ "$SYSNAME" = "linux" ]; then
-    echo 's/#undef \(HAVE_RINTF\)/#define \1 1/g' >>config.sed
+    sub "s/#undef \(HAVE_RINTF\)/#define \1 1/"
 else
-    echo 's/-p --ignore-fail-on-non-empty//g
-	s/ -mfpmath=sse//g' >>config.sed
+    sub "s/-p --ignore-fail-on-non-empty//;s/ -mfpmath=sse//"
 fi
 if [ "$SYSNAME" = "mac" -o "$SYSNAME" = "bsd" ]; then
-    echo 's/#define \(HAVE_STRSIGNAL\) 1/#undef \1/g' >>config.sed
+    sub "s/#define \(HAVE_STRSIGNAL\) 1/#undef \1/g"
 fi
 
 #### Printing helper functions #######################################
@@ -350,9 +349,9 @@ PrintVersion() {
 
 SubVar() {
     local esc2
-    esc2=`echo $2 | sed 's/\//\\\&/g'`
+    esc2=`escpath $2`
     eval ac_var_$1='$esc2';
-    echo "s/@$1@/$esc2/g" >>config.sed
+    sub "s/@$1@/$esc2/g"
 }
 
 SubComp() {
@@ -361,7 +360,7 @@ SubComp() {
     while [ ! -z "$cc" ]; do
 	name=`expr "$cc" : '[^}]*name=\[\([^]]*\)\]'`
 	seds=`expr "$cc" : '[^}]*seds=\[\([^]]*\)\]'`
-	[ "$name" = "$1" ] && echo $seds >>config.sed
+	[ "$name" = "$1" ] && sub "$seds"
 	cc=`expr "$cc" : '[^}]*}\(.*\)'`
     done
 }
@@ -379,7 +378,7 @@ done
 
 #### Set directory prefixes ##########################################
 
-echo "s/@prefix@/${ac_var_prefix:=\/usr\/local}/g
+sub "s/@prefix@/${ac_var_prefix:=\/usr\/local}/g
 s/@bindir@/$ac_var_prefix\/bin/g
 s/@datadir@/${ac_var_datadir:=$ac_var_prefix\/share}/g
 s/@sysconfdir@/$ac_var_prefix\/etc/g
@@ -391,15 +390,15 @@ s/@libdir@/${ac_var_libdir:=$ac_var_prefix\/lib}/g
 s/@localedir@/$ac_var_datarootdir\/locale/g
 s/@mandir@/$ac_var_datarootdir\/man/g
 s/@builddir@/\/tmp\/$USER\/make/g
-s/@gccincludedir@/${ac_var_gccincludedir:=`echo $PINCDIR | sed 's/\//\\\&/g'`}/g
-s/@gcclibdir@/${ac_var_gcclibdir:=`echo $PLIBDIR | sed 's/\//\\\&/g'`}/g
+s/@gccincludedir@/${ac_var_gccincludedir:=`escpath $PINCDIR`}/g
+s/@gcclibdir@/${ac_var_gcclibdir:=`escpath $PLIBDIR`}/g
 s/@customincdir@/${ac_var_customincdir:=$ac_var_prefix\/include}/g
-s/@customlibdir@/${ac_var_customlibdir:=$ac_var_prefix\/lib}/g" >>config.sed
+s/@customlibdir@/${ac_var_customlibdir:=$ac_var_prefix\/lib}/g"
 
 if [ "$ac_var_prefix" != "\/usr\/local" -a "$ac_var_prefix" != "\/usr" ]; then
-    echo "s/ @CUSTOMINCDIR@/ -I$ac_var_customincdir/g;s/ @CUSTOMLIBDIR@/ -L$ac_var_customlibdir/g" >>config.sed
+    sub "s/ @CUSTOMINCDIR@/ -I$ac_var_customincdir/g;s/ @CUSTOMLIBDIR@/ -L$ac_var_customlibdir/g"
 else
-    echo "s/ @CUSTOMINCDIR@//g;s/ @CUSTOMLIBDIR@//g" >>config.sed
+    sub "s/ @CUSTOMINCDIR@//g;s/ @CUSTOMLIBDIR@//g"
 fi
 
 #### Find headers, libs, programs, and subs ##########################
@@ -411,7 +410,7 @@ INCPATH=`echo $INCPATH | sed 's/\\\\//g'`
 for i in $HEADERS; do
     for p in $INCPATH; do
 	if [ -r "$p/$i" ]; then
-	    echo 's/#undef \(HAVE_'`echo $i|tr a-z/.- A-Z___`'\)/#define \1 1/' >>config.sed
+	    sub "s/#undef \(HAVE_`echo $i|tr a-z/.- A-Z___`\)/#define \1 1/"
 	    break
 	fi
     done
@@ -431,31 +430,34 @@ for i in $LIBS; do
 	done
 	[ -z "$found" ] || break
     done
-    echo "s/ @lib$i@/$found/g" >>config.sed
+    sub "s/ @lib$i@/$found/g"
 done
 
 for i in $PROGS; do
     pname=`expr "$i" : '\([^=]*\)=[^=]*'`
     pcall=`expr "$i" : '[^=]*=\([^=]*\)'`
-    esciv="`eval echo \$\{$pname\}|sed 's/\//\\\\\//g'`"
+    ppath=`eval echo \$\{$pname\}`
+    ppath=`escpath "$ppath"`
     # First check if an environment variable is set
-    [ ! -z "$esciv" ] && echo "s/@$pname@/$esciv/g" >>config.sed
+    [ ! -z "$ppath" ] && sub "s/@$pname@/$ppath/g"
     # Check if the program exists
-    [ -x `which $pcall 2>/dev/null` ] && echo "s/@$pname@/$pcall/g" >>config.sed
+    [ -x `which $pcall 2>/dev/null` ] && sub "s/@$pname@/$pcall/g"
 done
 # If nothing found in first loop, set the first pair anyway.
 for i in $PROGS; do
     pname=`expr "$i" : '\([^=]*\)=[^=]*'`
     pcall=`expr "$i" : '[^=]*=\([^=]*\)'`
-    echo "s/@$pname@/$pcall/g" >>config.sed
+    sub "s/@$pname@/$pcall/g"
 done
 # And, finally, the environment variables
 for i in $ENVIRONS; do
     esciv="`eval echo '"'\$\{$i\}'"'|sed 's/\//\\\&/g'`"
-    [ ! -z "$esciv" ] && esciv=" $esciv"
-    echo "s/ @$i@/$esciv/g" >>config.sed
+    ppath=`eval echo \$\{$pname\}`
+    ppath=`escpath "$ppath"`
+    [ ! -z "$ppath" ] && ppath=" $ppath"
+    sub "s/ @$i@/$ppath/g"
 done
-echo "$CUSTSUBS" >>config.sed
+sub "$CUSTSUBS"
 }
 SubHeadLibsProgs
 
