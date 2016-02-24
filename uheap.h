@@ -128,7 +128,7 @@ public:
     inline size_type	size (void) const	{ return _v.size(); }
     inline bool		empty (void) const	{ return _v.empty(); }
     inline reference	top (void) const	{ return _v.at(0); }
-    inline void		push (reference v)	{ _v.push_back (v); make_heap (_v.begin(), _v.end(), _c); }
+    inline void		push (reference v)	{ _v.push_back (v); push_heap (_v.begin(), _v.end(), _c); }
     inline void		pop (void)		{ pop_heap (_v.begin(), _v.end()); _v.pop_back(); }
 private:
     base_ctr		_v;	///< Element container.
