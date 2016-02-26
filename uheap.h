@@ -24,6 +24,27 @@ bool is_heap (RandomAccessIterator first, RandomAccessIterator last, Compare com
     return true;
 }
 
+/// Utility function to "trickle down" the root item - swaps the root item with its
+/// largest child and "recursively" fixes the proper subtree.
+template <typename RandomAccessIterator, typename Distance, typename Compare>
+void _trickle_down_heap (RandomAccessIterator first, Distance iHole, Distance heapSize, Compare comp)
+{
+    typedef typename iterator_traits<RandomAccessIterator>::value_type value_type;
+    const value_type v(first[iHole]);
+    Distance iChild;
+    while ((iChild = 2 * iHole + 1) < heapSize) {
+	if (iChild + 1 < heapSize)
+	    iChild += comp(first[iChild], first[iChild + 1]);
+	if (comp(v, first[iChild])) {
+	    first[iHole] = first[iChild];
+	    iHole = iChild;
+	}
+	else
+	    break;
+    }
+    first[iHole] = v;
+}
+
 /// \brief make_heap turns the range [first, last) into a heap
 /// At completion, is_heap (first, last, comp) is true.
 /// The algorithm is adapted from "Classic Data Structures in C++" by Timothy Budd.
@@ -33,19 +54,15 @@ bool is_heap (RandomAccessIterator first, RandomAccessIterator last, Compare com
 template <typename RandomAccessIterator, typename Compare>
 void make_heap (RandomAccessIterator first, RandomAccessIterator last, Compare comp)
 {
-    typedef typename iterator_traits<RandomAccessIterator>::value_type value_type;
-    const value_type v (*first);
-    uoff_t iChild, iHole = 0, iEnd (distance (first, last));
-    while ((iChild = 2 * iHole + 1) < iEnd) {
-	if (iChild + 1 < iEnd)	// Pick the greater child
-	    iChild += comp (first[iChild], first[iChild + 1]);
-	if (comp (first[iChild], v))
-	    break;		// Done when parent is greater than both children.
-	first[iHole] = first[iChild];
-	iHole = iChild;
+    if (last <= first)
+	return;
+    typedef typename iterator_traits<RandomAccessIterator>::difference_type distance_type;
+    distance_type heapSize(last - first);
+    RandomAccessIterator i = first + (last - first - 1)/2;
+    while (i >= first) {
+	_trickle_down_heap(first, distance_type(i - first), heapSize, comp);
+	--i;
     }
-    if (iHole < iEnd)
-	first[iHole] = v;
 }
 
 /// \brief Inserts the *--last into the preceeding range assumed to be a heap.
@@ -77,8 +94,9 @@ void pop_heap (RandomAccessIterator first, RandomAccessIterator last, Compare co
 {
     if (--last <= first)
 	return;
-    iter_swap (first, last);
-    make_heap (first, last, comp);
+    typedef typename iterator_traits<RandomAccessIterator>::difference_type distance_type;
+    iter_swap(first, last);
+    _trickle_down_heap(first, distance_type(0), distance_type(last - first), comp);
 }
 
 /// Sorts heap [first, last) in descending order according to comp.
