@@ -5,10 +5,6 @@
 
 #pragma once
 #include "utypes.h"
-#ifndef WITHOUT_LIBSTDCPP
-    #include <exception>
-    #include <new>
-#endif
 #include "bktrace.h"
 
 #if WITHOUT_LIBSTDCPP

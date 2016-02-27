@@ -7,9 +7,7 @@
 // type information for exception classes.
 
 #pragma once
-#ifndef WITHOUT_LIBSTDCPP
-    #include <typeinfo>
-#else
+#if WITHOUT_LIBSTDCPP
 #include "uexception.h"
 
 namespace __cxxabiv1 { class __class_type_info; }
@@ -33,7 +31,6 @@ private:
 protected:
     const char*		__name;
 };
-
 } // namespace std
 
-#endif
+#endif	// WITHOUT_LIBSTDCPP
