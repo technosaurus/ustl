@@ -30,16 +30,14 @@ template <typename RandomAccessIterator, typename Distance, typename Compare>
 void _trickle_down_heap (RandomAccessIterator first, Distance iHole, Distance heapSize, Compare comp)
 {
     typedef typename iterator_traits<RandomAccessIterator>::value_type value_type;
-    const value_type v(first[iHole]);
-    Distance iChild;
-    while ((iChild = 2 * iHole + 1) < heapSize) {
+    const value_type v (first[iHole]);
+    for (Distance iChild; (iChild = 2 * iHole + 1) < heapSize;) {
 	if (iChild + 1 < heapSize)
 	    iChild += comp(first[iChild], first[iChild + 1]);
 	if (comp(v, first[iChild])) {
 	    first[iHole] = first[iChild];
 	    iHole = iChild;
-	}
-	else
+	} else
 	    break;
     }
     first[iHole] = v;
