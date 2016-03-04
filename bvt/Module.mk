@@ -47,7 +47,7 @@ $Obvt/bench:	$Obvt/bench.o $Obvt/stdtest.o ${ALLTGTS}
 	@${LD} ${LDFLAGS} -o $@ $< $Obvt/stdtest.o ${bvt/LIBS}
 
 $Obvt/.d:	$O.d
-	@mkdir $Obvt
+	@[ -d $Obvt ] || mkdir $Obvt
 	@touch $Obvt/.d
 
 ################ Maintenance ###########################################
