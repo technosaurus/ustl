@@ -30,12 +30,23 @@ void TestUTF8 (void)
     string encoded;
     encoded.reserve (srcChars.size() * 4);
     copy (srcChars, utf8out (back_inserter(encoded)));
-    static const char c_ProperEncoding[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-    if (encoded.compare (encoded.begin(), encoded.begin() + VectorSize(c_ProperEncoding), VectorRange(c_ProperEncoding))) {
-	cout << "Encoding failed: ";
-	for (string::const_iterator i = encoded.begin(); i != encoded.begin() + VectorSize(c_ProperEncoding); ++ i)
-	    cout << uint32_t(*i);
-	cout << endl;
+
+    for (unsigned i = 0, ci = 0; i < encoded.size();) {
+	unsigned seqb = Utf8SequenceBytes(encoded[i]), cntb = Utf8Bytes(ci);
+	if (seqb != cntb)
+	    cout.format ("Char %x encoded in %u bytes instead of %u\n", ci, seqb, cntb);
+	unsigned char h1 = 0xff << (8-seqb), m1 = 0xff << (7-seqb);
+	if (ci <= 0x7f) {
+	    h1 = 0;
+	    m1 = 0x80;
+	}
+	if ((encoded[i] & m1) != h1)
+	    cout.format ("Char %x has incorrect encoded header %02hhx instead of %02hhx\n", ci, encoded[i] & m1, h1);
+	++i;
+	for (unsigned j = 1; j < seqb; ++j, ++i)
+	    if ((encoded[i] & 0xC0) != 0x80)
+		cout.format ("Char %x has incorrect intrabyte %u: %02hhx\n", ci, j, encoded[i]);
+	++ci;
     }
 
     cout << "Decoding back.\n";
