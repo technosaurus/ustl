@@ -25,16 +25,16 @@ bool is_heap (RandomAccessIterator first, RandomAccessIterator last, Compare com
 }
 
 /// Utility function to "trickle down" the root item - swaps the root item with its
-/// largest child and "recursively" fixes the proper subtree.
-template <typename RandomAccessIterator, typename Distance, typename Compare>
-void _trickle_down_heap (RandomAccessIterator first, Distance iHole, Distance heapSize, Compare comp)
+/// largest child and recursively fixes the proper subtree.
+template <typename RandomAccessIterator, typename Compare>
+void trickle_down_heap (RandomAccessIterator first, size_t iHole, size_t heapSize, Compare comp)
 {
     typedef typename iterator_traits<RandomAccessIterator>::value_type value_type;
     const value_type v (first[iHole]);
-    for (Distance iChild; (iChild = 2 * iHole + 1) < heapSize;) {
+    for (size_t iChild; (iChild = 2 * iHole + 1) < heapSize;) {
 	if (iChild + 1 < heapSize)
-	    iChild += comp(first[iChild], first[iChild + 1]);
-	if (comp(v, first[iChild])) {
+	    iChild += comp (first[iChild], first[iChild + 1]);
+	if (comp (v, first[iChild])) {
 	    first[iHole] = first[iChild];
 	    iHole = iChild;
 	} else
@@ -54,13 +54,9 @@ void make_heap (RandomAccessIterator first, RandomAccessIterator last, Compare c
 {
     if (last <= first)
 	return;
-    typedef typename iterator_traits<RandomAccessIterator>::difference_type distance_type;
-    distance_type heapSize(last - first);
-    RandomAccessIterator i = first + (last - first - 1)/2;
-    while (i >= first) {
-	_trickle_down_heap(first, distance_type(i - first), heapSize, comp);
-	--i;
-    }
+    const size_t heapSize = distance (first, last);
+    for (RandomAccessIterator i = first + (heapSize - 1)/2; i >= first; --i)
+	trickle_down_heap (first, distance(first,i), heapSize, comp);
 }
 
 /// \brief Inserts the *--last into the preceeding range assumed to be a heap.
@@ -92,9 +88,8 @@ void pop_heap (RandomAccessIterator first, RandomAccessIterator last, Compare co
 {
     if (--last <= first)
 	return;
-    typedef typename iterator_traits<RandomAccessIterator>::difference_type distance_type;
-    iter_swap(first, last);
-    _trickle_down_heap(first, distance_type(0), distance_type(last - first), comp);
+    iter_swap (first, last);
+    trickle_down_heap (first, 0, distance(first,last), comp);
 }
 
 /// Sorts heap [first, last) in descending order according to comp.
