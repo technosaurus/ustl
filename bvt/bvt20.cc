@@ -13,9 +13,10 @@ void TestStackAndQueue (void)
     cout << "Testing stack: ";
     for (size_t i = 0; i < 5; ++ i)
 	s.push (1 + i);
-    cout << "popping: ";
-    for (size_t j = 0; j < 5; ++ j) {
-	cout << s.top() << ' ';
+    s.emplace (42);
+    cout << "popping:";
+    while (!s.empty()) {
+	cout << ' ' << s.top();
 	s.pop();
     }
     cout << endl;
@@ -24,9 +25,10 @@ void TestStackAndQueue (void)
     cout << "Testing queue: ";
     for (size_t k = 0; k < 5; ++ k)
 	q.push (1 + k);
-    cout << "popping: ";
-    for (size_t l = 0; l < 5; ++ l) {
-	cout << q.front() << ' ';
+    q.emplace (42);
+    cout << "popping:";
+    while (!q.empty()) {
+	cout << ' ' << q.front();
 	q.pop();
     }
     cout << endl;
