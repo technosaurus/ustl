@@ -31,7 +31,7 @@ public:
     inline const_reference	front (void) const		{ return _storage [_front]; }
     inline reference		back (void)			{ return _storage.back(); }
     inline const_reference	back (void) const		{ return _storage.back(); }
-    inline void			push (const value_type& v)	{ _storage.push_back (v); }
+    inline void			push (const_reference v)	{ _storage.push_back (v); }
     void			pop (void) {
 				    if (++_front > _storage.size()/2) {
 					_storage.erase (_storage.begin(), _front);

@@ -29,7 +29,7 @@ public:
     inline size_type		size (void) const		{ return _storage.size(); }
     inline reference		top (void)			{ return _storage.back(); }
     inline const_reference	top (void) const		{ return _storage.back(); }
-    inline void			push (const value_type& v)	{ _storage.push_back (v); }
+    inline void			push (const_reference v)	{ _storage.push_back (v); }
     inline void			pop (void)			{ _storage.pop_back(); }
     inline void			swap (stack& v)			{ _storage.swap (v); }
     inline bool			operator== (const stack& s) const	{ return _storage == s._storage; }
