@@ -4,7 +4,6 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
-#include <unistd.h>
 
 void TestStreams (void)
 {

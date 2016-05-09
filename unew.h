@@ -5,7 +5,6 @@
 
 #pragma once
 #include "uexception.h"
-#include <stdlib.h>
 
 /// Just like malloc, but throws on failure.
 extern "C" void* tmalloc (size_t n) __attribute__((malloc));

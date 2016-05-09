@@ -6,10 +6,7 @@
 #include "ofstream.h"
 #include "ustring.h"
 #include "uexception.h"
-#include <unistd.h>
-#include <errno.h>
 #include <stdio.h>
-#include <stdarg.h>
 
 namespace ustl {
 

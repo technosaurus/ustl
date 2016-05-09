@@ -24,9 +24,18 @@
     #include <sys/types.h>
 #endif
 #include <stddef.h>		// For ptrdiff_t, size_t
+#include <stdarg.h>
 #include <limits.h>
 #include <float.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#if HAVE_ALLOCA_H
+    #include <alloca.h>
+#endif
 #ifndef WITHOUT_LIBSTDCPP
     #include <exception>
     #include <typeinfo>

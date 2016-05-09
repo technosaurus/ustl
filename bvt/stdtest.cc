@@ -6,7 +6,6 @@
 #define _GNU_SOURCE 1
 #include "stdtest.h"
 #include <signal.h>
-#include <unistd.h>
 
 /// Called when a signal is received.
 static void OnSignal (int sig)
