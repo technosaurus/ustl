@@ -1,6 +1,6 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = uSTL
-PROJECT_NUMBER         = 2.3
+PROJECT_NUMBER         = 2.4
 PROJECT_BRIEF          =
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = docs
