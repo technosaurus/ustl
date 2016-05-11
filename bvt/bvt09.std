@@ -1,4 +1,4 @@
-131 bytes written
+139 bytes written
 Values:
 char:    'c'
 u_char:  'c'
@@ -11,7 +11,7 @@ float:   123.46
 double:  123456789123456.78
 short:   1234
 u_short: 1234
-get:     Line .to read with get
+get:     Line .to read with get: 000123
 getline: "Line to read with getline", 26 chars read
 
 Dump:
@@ -26,6 +26,6 @@ true
 123456789123456.78
 1234
 1234
-Line to read with get
+Line to read with get: 000123
 Line to read with getline
 

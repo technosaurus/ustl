@@ -72,8 +72,11 @@ inline char* ostringstream::encode_dec (char* fmt, uint32_t n) const noexcept
 void ostringstream::fmtstring (char* fmt, const char* typestr, bool bInteger) const
 {
     *fmt++ = '%';
-    if (_width)
+    if (_width) {
+	if (_fill == '0')
+	    *fmt++ = '0';
 	fmt = encode_dec (fmt, _width);
+    }
     if (_flags & left)
 	*fmt++ = '-';
     if (bInteger) {

@@ -56,9 +56,11 @@ public:
     inline uint16_t		width (void) const		{ return _width; }
     inline void			width (uint16_t w)		{ _width = w; }
     inline void			set_width (uint16_t w)		{ _width = w; }
-    inline uint16_t		precision (void) const		{ return _precision; }
-    inline void			precision (uint16_t v)		{ _precision = v; }
-    inline void			set_precision (uint16_t v)	{ _precision = v; }
+    inline char			fill (void) const		{ return _fill; }
+    inline void			fill (char c)			{ _fill = c; }
+    inline uint8_t		precision (void) const		{ return _precision; }
+    inline void			precision (uint8_t v)		{ _precision = v; }
+    inline void			set_precision (uint8_t v)	{ _precision = v; }
     void			link (void* p, size_type n) noexcept;
     inline void			link (memlink& l)		{ link (l.data(), l.writable_size()); }
     inline const string&	str (void)			{ flush(); return _buffer; }
@@ -81,7 +83,8 @@ private:
     string			_buffer;	///< The output buffer.
     fmtflags			_flags;		///< See ios_base::fmtflags.
     uint16_t			_width;		///< Field width.
-    uint16_t			_precision;	///< Number of digits after the decimal separator.
+    uint8_t			_precision;	///< Number of digits after the decimal separator.
+    char			_fill;		///< Character for padding variable width fields (space or 0 only)
 };
 
 //----------------------------------------------------------------------
@@ -192,10 +195,17 @@ public:
     inline void text_write (ostringstream& os) const	{ os.width(_w); }
     inline void write (ostringstream& os) const		{ os.width(_w); }
 };
-class setprecision {
-    uint16_t _p;
+class setfill {
+    char _c;
 public:
-    inline constexpr setprecision (uint16_t p)		: _p(p) {}
+    inline constexpr setfill (char c)			: _c(c) {}
+    inline void text_write (ostringstream& os) const	{ os.fill(_c); }
+    inline void write (ostringstream& os) const		{ os.fill(_c); }
+};
+class setprecision {
+    uint8_t _p;
+public:
+    inline constexpr setprecision (uint8_t p)		: _p(p) {}
     inline void text_write (ostringstream& os) const	{ os.precision(_p); }
     inline void write (ostringstream& os) const		{ os.precision(_p); }
 };
