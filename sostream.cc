@@ -18,6 +18,7 @@ ostringstream::ostringstream (void* p, size_t n) noexcept
 ,_flags (0)
 ,_width (0)
 ,_precision (2)
+,_fill (' ')
 {
     exceptions (goodbit);
     link (p, n);
@@ -30,6 +31,7 @@ ostringstream::ostringstream (const string& v)
 ,_flags (0)
 ,_width (0)
 ,_precision (2)
+,_fill (' ')
 {
     exceptions (goodbit);
     ostream::link (_buffer);
