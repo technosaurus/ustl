@@ -91,7 +91,11 @@ void TestHeapOperations (void)
     priority_queue<int> q;
     for (uoff_t i = 0; i < VectorSize(c_Values); ++ i)
 	q.push (c_Values[i]);
+#if HAVE_CPP11
     q.emplace (73);
+#else
+    q.push (73);
+#endif
     while (!q.empty()) {
 	cout << q.top();
 	q.pop();
