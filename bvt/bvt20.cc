@@ -13,7 +13,11 @@ void TestStackAndQueue (void)
     cout << "Testing stack: ";
     for (size_t i = 0; i < 5; ++ i)
 	s.push (1 + i);
+#if HAVE_CPP11
     s.emplace (42);
+#else
+    s.push (42);
+#endif
     cout << "popping:";
     while (!s.empty()) {
 	cout << ' ' << s.top();
@@ -25,7 +29,11 @@ void TestStackAndQueue (void)
     cout << "Testing queue: ";
     for (size_t k = 0; k < 5; ++ k)
 	q.push (1 + k);
+#if HAVE_CPP11
     q.emplace (42);
+#else
+    q.push (42);
+#endif
     cout << "popping:";
     while (!q.empty()) {
 	cout << ' ' << q.front();
