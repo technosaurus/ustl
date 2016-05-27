@@ -54,13 +54,11 @@ template <typename T1, typename T2>
 inline pair<T1,T2> make_pair (T1&& a, T2&& b)
     { return pair<T1,T2> (forward<T1>(a), forward<T2>(b)); }
 
-#else
+#endif
 
 /// Returns a pair object with (a,b)
 template <typename T1, typename T2>
 inline pair<T1,T2> make_pair (const T1& a, const T2& b)
     { return pair<T1,T2> (a, b); }
-
-#endif
 
 } // namespace ustl

@@ -5,7 +5,6 @@
 
 #pragma once
 #include "uexception.h"
-#include <stdlib.h>
 
 /// Just like malloc, but throws on failure.
 extern "C" void* tmalloc (size_t n) __attribute__((malloc));
@@ -42,6 +41,4 @@ inline void* operator new[] (size_t, void* p) noexcept	{ return p; }
 inline void  operator delete  (void*, void*) noexcept	{ }
 inline void  operator delete[](void*, void*) noexcept	{ }
 
-#else
-#include <new>
 #endif	// WITHOUT_LIBSTDCPP

@@ -4,7 +4,7 @@
 // This file is free software, distributed under the MIT License.
 
 #pragma once
-#include "config.h"
+#include "utypes.h"
 #if HAVE_CPP11
 
 //{{{ memory_order -----------------------------------------------------

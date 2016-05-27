@@ -5,11 +5,6 @@
 
 #pragma once
 #include "unew.h"
-#if HAVE_ALLOCA_H
-    #include <alloca.h>
-#else
-    #include <stdlib.h>
-#endif
 #include "uiterator.h"
 #include "ulimits.h"
 #include "upair.h"
@@ -210,6 +205,91 @@ private:
 template <typename T, typename... Args>
 inline auto make_shared (Args&&... args)
     { return shared_ptr<T> (new T (forward<Args>(args)...)); }
+
+#endif // HAVE_CPP14
+
+//}}}-------------------------------------------------------------------
+//{{{ scope_exit
+
+template <typename F>
+class scope_exit {
+public:
+    inline explicit	scope_exit (F&& f) noexcept		: _f(move(f)),_enabled(true) {}
+    inline		scope_exit (scope_exit&& f) noexcept	: _f(move(f._f)),_enabled(f._enabled) { f.release(); }
+    inline void		release (void) noexcept			{ _enabled = false; }
+    inline		~scope_exit (void) noexcept (noexcept (declval<F>()))	{ if (_enabled) _f(); }
+			scope_exit (const scope_exit&) = delete;
+    scope_exit&		operator= (const scope_exit&) = delete;
+    scope_exit&		operator= (scope_exit&&) = delete;
+private:
+    F		_f;
+    bool	_enabled;
+};
+
+#if HAVE_CPP14
+template <typename F>
+auto make_scope_exit (F&& f) noexcept
+    { return scope_exit<remove_reference_t<F>>(forward<F>(f)); }
+#endif // HAVE_CPP14
+
+//}}}-------------------------------------------------------------------
+//{{{ unique_resource
+
+template <typename R, typename D>
+class unique_resource {
+public:
+    inline explicit	unique_resource (R&& resource, D&& deleter, bool enabled = true) noexcept
+			    : _resource(move(resource)), _deleter(move(deleter)),_enabled(enabled) {}
+    inline		unique_resource (unique_resource&& r) noexcept
+			    : _resource(move(r._resource)),_deleter(move(r._deleter)),_enabled(r._enabled) { r.release(); }
+			unique_resource (const unique_resource&) = delete;
+    inline		~unique_resource() noexcept(noexcept(declval<unique_resource<R,D>>().reset()))
+			    { reset(); }
+    inline const D&	get_deleter (void) const noexcept	{ return _deleter; }
+    inline R const&	get (void) const noexcept		{ return _resource; }
+    inline R const&	release (void) noexcept			{ _enabled = false; return get(); }
+    inline void		reset (void) noexcept (noexcept(declval<D>())) {
+			    if (_enabled) {
+				_enabled = false;
+				get_deleter()(_resource);
+			    }
+			}
+    inline void		reset (R&& r) noexcept (noexcept(reset())) {
+			    reset();
+			    _resource = move(r);
+			    _enabled = true;
+			}
+    unique_resource&	operator= (const unique_resource&) = delete;
+    unique_resource&	operator= (unique_resource &&r) noexcept(noexcept(reset())) {
+			    reset();
+			    _deleter = move(r._deleter);
+			    _resource = move(r._resource);
+			    _enabled = r._enabled;
+			    r.release();
+			    return *this;
+			}
+    inline		operator R const& (void) const noexcept	{ return get(); }
+    inline R		operator-> (void) const noexcept	{ return _resource; }
+    inline add_lvalue_reference_t<remove_pointer_t<R>>
+			operator* (void) const	{ return *_resource; }
+private:
+    R			_resource;
+    D			_deleter;
+    bool		_enabled;
+};
+
+#if HAVE_CPP14
+
+template <typename R,typename D>
+auto make_unique_resource (R&& r, D&& d) noexcept
+    { return unique_resource<R,remove_reference_t<D>>(move(r), forward<remove_reference_t<D>>(d), true); }
+
+template <typename R,typename D>
+auto make_unique_resource_checked (R r, R invalid, D d) noexcept
+{
+    bool shouldrun = !(r == invalid);
+    return unique_resource<R,D>(move(r), move(d), shouldrun);
+}
 
 #endif // HAVE_CPP14
 #endif // HAVE_CPP11

@@ -171,7 +171,7 @@ istringstream& istringstream::read (void* buffer, size_type sz)
 istringstream& istringstream::get (char* p, size_type n, char delim)
 {
     _gcount = 0;
-    for (char c, *pend = p+n-1; p < pend && (remaining() || underflow()); ++p, ++_gcount) {
+    for (char c = 0, *pend = p+n-1; p < pend && (remaining() || underflow()); ++p, ++_gcount) {
 	istream::iread (c);
 	if (c == delim) {
 	    ungetc();

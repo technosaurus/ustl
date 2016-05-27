@@ -8,7 +8,6 @@
 #include "ualgo.h"
 #include "umemory.h"
 #include "fstream.h"
-#include <errno.h>
 
 namespace ustl {
 

@@ -4,6 +4,8 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
+#include "../uqueue.h"
+#include "../ustack.h"
 
 void TestStackAndQueue (void)
 {
@@ -11,9 +13,14 @@ void TestStackAndQueue (void)
     cout << "Testing stack: ";
     for (size_t i = 0; i < 5; ++ i)
 	s.push (1 + i);
-    cout << "popping: ";
-    for (size_t j = 0; j < 5; ++ j) {
-	cout << s.top() << ' ';
+#if HAVE_CPP11
+    s.emplace (42);
+#else
+    s.push (42);
+#endif
+    cout << "popping:";
+    while (!s.empty()) {
+	cout << ' ' << s.top();
 	s.pop();
     }
     cout << endl;
@@ -22,9 +29,14 @@ void TestStackAndQueue (void)
     cout << "Testing queue: ";
     for (size_t k = 0; k < 5; ++ k)
 	q.push (1 + k);
-    cout << "popping: ";
-    for (size_t l = 0; l < 5; ++ l) {
-	cout << q.front() << ' ';
+#if HAVE_CPP11
+    q.emplace (42);
+#else
+    q.push (42);
+#endif
+    cout << "popping:";
+    while (!q.empty()) {
+	cout << ' ' << q.front();
 	q.pop();
     }
     cout << endl;

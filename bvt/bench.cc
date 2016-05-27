@@ -3,7 +3,9 @@
 // Copyright (c) 2005 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "../ustl.h"
+#include "../uspecial.h"
+#include "../unumeric.h"
+#include "../ofstream.h"
 #include <time.h>
 using namespace ustl;
 

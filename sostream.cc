@@ -18,6 +18,7 @@ ostringstream::ostringstream (void* p, size_t n) noexcept
 ,_flags (0)
 ,_width (0)
 ,_precision (2)
+,_fill (0)
 {
     exceptions (goodbit);
     link (p, n);
@@ -30,6 +31,7 @@ ostringstream::ostringstream (const string& v)
 ,_flags (0)
 ,_width (0)
 ,_precision (2)
+,_fill (0)
 {
     exceptions (goodbit);
     ostream::link (_buffer);
@@ -72,8 +74,11 @@ inline char* ostringstream::encode_dec (char* fmt, uint32_t n) const noexcept
 void ostringstream::fmtstring (char* fmt, const char* typestr, bool bInteger) const
 {
     *fmt++ = '%';
-    if (_width)
+    if (_width) {
+	if (_fill == '0')
+	    *fmt++ = '0';
 	fmt = encode_dec (fmt, _width);
+    }
     if (_flags & left)
 	*fmt++ = '-';
     if (bInteger) {

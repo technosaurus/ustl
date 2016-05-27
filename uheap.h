@@ -24,6 +24,25 @@ bool is_heap (RandomAccessIterator first, RandomAccessIterator last, Compare com
     return true;
 }
 
+/// Utility function to "trickle down" the root item - swaps the root item with its
+/// largest child and recursively fixes the proper subtree.
+template <typename RandomAccessIterator, typename Compare>
+void trickle_down_heap (RandomAccessIterator first, size_t iHole, size_t heapSize, Compare comp)
+{
+    typedef typename iterator_traits<RandomAccessIterator>::value_type value_type;
+    const value_type v (first[iHole]);
+    for (size_t iChild; (iChild = 2 * iHole + 1) < heapSize;) {
+	if (iChild + 1 < heapSize)
+	    iChild += comp (first[iChild], first[iChild + 1]);
+	if (comp (v, first[iChild])) {
+	    first[iHole] = first[iChild];
+	    iHole = iChild;
+	} else
+	    break;
+    }
+    first[iHole] = v;
+}
+
 /// \brief make_heap turns the range [first, last) into a heap
 /// At completion, is_heap (first, last, comp) is true.
 /// The algorithm is adapted from "Classic Data Structures in C++" by Timothy Budd.
@@ -33,19 +52,11 @@ bool is_heap (RandomAccessIterator first, RandomAccessIterator last, Compare com
 template <typename RandomAccessIterator, typename Compare>
 void make_heap (RandomAccessIterator first, RandomAccessIterator last, Compare comp)
 {
-    typedef typename iterator_traits<RandomAccessIterator>::value_type value_type;
-    const value_type v (*first);
-    uoff_t iChild, iHole = 0, iEnd (distance (first, last));
-    while ((iChild = 2 * iHole + 1) < iEnd) {
-	if (iChild + 1 < iEnd)	// Pick the greater child
-	    iChild += comp (first[iChild], first[iChild + 1]);
-	if (comp (first[iChild], v))
-	    break;		// Done when parent is greater than both children.
-	first[iHole] = first[iChild];
-	iHole = iChild;
-    }
-    if (iHole < iEnd)
-	first[iHole] = v;
+    if (last <= first)
+	return;
+    const size_t heapSize = distance (first, last);
+    for (RandomAccessIterator i = first + (heapSize - 1)/2; i >= first; --i)
+	trickle_down_heap (first, distance(first,i), heapSize, comp);
 }
 
 /// \brief Inserts the *--last into the preceeding range assumed to be a heap.
@@ -78,7 +89,7 @@ void pop_heap (RandomAccessIterator first, RandomAccessIterator last, Compare co
     if (--last <= first)
 	return;
     iter_swap (first, last);
-    make_heap (first, last, comp);
+    trickle_down_heap (first, 0, distance(first,last), comp);
 }
 
 /// Sorts heap [first, last) in descending order according to comp.
@@ -113,26 +124,38 @@ HEAP_FN_WITH_LESS (void, sort_heap)
 /// Acts just like the queue adapter, but keeps the elements sorted by priority
 /// specified by the given comparison operator.
 ///
-template <typename T, typename Ctr = vector<T>, typename Comp = less<typename Ctr::value_type> >
+template <typename T, typename Container = vector<T>, typename Comp = less<typename Container::value_type> >
 class priority_queue {
 public:
-    typedef Ctr					base_ctr;
-    typedef typename base_ctr::value_type	value_type;
-    typedef typename base_ctr::size_type	size_type;
-    typedef typename base_ctr::const_pointer	const_pointer;
-    typedef typename base_ctr::const_reference	reference;
+    typedef Container				container_type;
+    typedef typename container_type::size_type	size_type;
+    typedef typename container_type::value_type	value_type;
+    typedef typename container_type::reference	reference;
+    typedef typename container_type::const_reference	const_reference;
+    typedef typename container_type::const_iterator	const_iterator;
 public:
-			priority_queue (const Comp& c = Comp()) : _v(), _c (c) {}
-			priority_queue (const_pointer f, const_pointer l, const Comp& c = Comp())
-			    : _v (f, l), _c (c) { make_heap (_v.begin(), _v.end(), _c); }
-    inline size_type	size (void) const	{ return _v.size(); }
-    inline bool		empty (void) const	{ return _v.empty(); }
-    inline reference	top (void) const	{ return _v.at(0); }
-    inline void		push (reference v)	{ _v.push_back (v); make_heap (_v.begin(), _v.end(), _c); }
-    inline void		pop (void)		{ pop_heap (_v.begin(), _v.end()); _v.pop_back(); }
+    inline explicit		priority_queue (const Comp& c = Comp()) : _v(), _c(c) {}
+    inline			priority_queue (const Comp& c, const container_type& v) : _v(v), _c(c) {}
+				priority_queue (const_iterator f, const_iterator l, const Comp& c = Comp())
+				    : _v(f, l), _c(c) { make_heap (_v.begin(), _v.end(), _c); }
+    inline size_type		size (void) const	{ return _v.size(); }
+    inline bool			empty (void) const	{ return _v.empty(); }
+    inline const_reference	top (void) const	{ return _v.front(); }
+    inline void			push (const_reference v){ _v.push_back (v); push_heap (_v.begin(), _v.end(), _c); }
+    inline void			pop (void)		{ pop_heap (_v.begin(), _v.end()); _v.pop_back(); }
+    inline void			swap (priority_queue& v){ _v.swap (v._v); swap (_c, v._c); }
+#if HAVE_CPP11
+    inline explicit		priority_queue (priority_queue&& v)	: _v(move(v._v)),_c(v._c) {}
+    inline			priority_queue (const Comp& c, container_type&& v)	: _v(move(v)),_c(c) {}
+				priority_queue (const_iterator f, const_iterator l, const Comp& c, container_type&& v)
+				    : _v(move(v)), _c(c) { _v.insert (_v.end(), f, l); make_heap (_v.begin(), _v.end(), _c); }
+    inline priority_queue&	operator= (priority_queue&& v)	{ swap (v); return *this; }
+    template <typename... Args>
+    inline void			emplace (Args&&... args)	{ _v.emplace_back (forward<Args>(args)...); push_heap (_v.begin(), _v.end(), _c); }
+#endif
 private:
-    base_ctr		_v;	///< Element container.
-    Comp		_c;	///< Comparison functor by value.
+    container_type		_v;	///< Element container.
+    Comp			_c;	///< Comparison functor by value.
 };
 
 } // namespace ustl

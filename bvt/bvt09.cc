@@ -39,7 +39,7 @@ void TestStringStreams (void)
     os << d << endl;
     os << si << endl;
     os << usi << endl;
-    os << "Line to read with get" << endl;
+    os << "Line to read with get: " << setfill('0') << setw(6) << 123 << endl;
     os << "Line to read with getline" << endl;
     os.flush();
     cout << os.pos() << " bytes written" << endl;

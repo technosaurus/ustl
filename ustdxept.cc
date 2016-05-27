@@ -9,7 +9,6 @@
 #include "strmsize.h"
 #include "uiosfunc.h"
 #include "uspecial.h"
-#include <errno.h>
 
 namespace ustl {
 

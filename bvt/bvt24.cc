@@ -4,6 +4,7 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
+#include "../uheap.h"
 
 static void HeapSize (size_t nElements, size_t& layerWidth, size_t& nLayers)
 {
@@ -46,8 +47,8 @@ static void PrintHeap (const vector<int>& v)
 void TestHeapOperations (void)
 {
     static const int c_Values [31] = {	// 31 values make a full 4-layer tree
-	93, 92, 90, 86, 83, 86, 77, 40, 72, 36, 68, 82, 62, 67, 63, 15,
-	26, 26, 49, 21, 11, 62, 67, 27, 29, 30, 35, 23, 59, 35, 29
+	93, 12, 90, 86, 83, 86, 17, 40, 72, 36, 68, 42, 62, 67, 63, 65,
+	26, 26, 49, 21, 11, 62, 67, 27, 11, 30, 35, 23, 59, 35, 99
     };
     vector<int> v;
     v.reserve (VectorSize(c_Values));
@@ -90,6 +91,11 @@ void TestHeapOperations (void)
     priority_queue<int> q;
     for (uoff_t i = 0; i < VectorSize(c_Values); ++ i)
 	q.push (c_Values[i]);
+#if HAVE_CPP11
+    q.emplace (73);
+#else
+    q.push (73);
+#endif
     while (!q.empty()) {
 	cout << q.top();
 	q.pop();

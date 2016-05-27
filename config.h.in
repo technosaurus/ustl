@@ -95,9 +95,6 @@
 /// gcc has lately decided that inline is just a suggestion
 /// Define to 1 if when you say 'inline' you mean it!
 #undef WANT_ALWAYS_INLINE
-#if WANT_ALWAYS_INLINE
-    #define inline INLINE inline
-#endif
 
 /// Define to 1 if you have the <assert.h> header file.
 #undef HAVE_ASSERT_H

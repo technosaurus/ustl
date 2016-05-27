@@ -240,7 +240,7 @@ returns the string length in bytes, <code>length</code> in characters.
 You can iterate by characters instead of bytes with a special utf8
 iterator:
 </p><pre>
-for (auto i = s.utf8_begin(); i &lt; s.utf8_end(); ++ i)
+for (auto i = s.utf8_begin(); i &lt; s.utf8_end(); ++i)
     DrawChar (*i);
 </pre><p>
 or just copy all the chars into an array and iterate over that:
@@ -591,59 +591,58 @@ int main (void)
 }
 </pre><p>
 Feel free to compile it and see for yourself. I'm compiling on a Core i7
-with gcc 4.7.2 and <kbd>-Os -DNDEBUG=1 -march=native</kbd>. The libstdc++
+with gcc 5.3 and <kbd>-Os -DNDEBUG=1 -march=native</kbd>. The libstdc++
 version is linked implicitly with it, and uSTL version is linked with gcc
 (instead of g++) and <kbd>-lustl</kbd>. Both executables are stripped.
 The libstdc++ version looks like this:
 </p><pre>
 % ls -l std/tes
-6896 tes
+6912 tes
 % size std/tes
 text	data	bss	dec	hex	filename
-3522	656	8	4186	105a	std/tes
+3464	656	8	4128	1020	std/tes
 % size -A std/tes.o
 std/tes.o:
-section                                                                                                      size
-.group                                                                                                          8
-.group                                                                                                          8
-.group                                                                                                          8
-.group                                                                                                          8
-.group                                                                                                          8
-.text                                                                                                          11
-.data                                                                                                           0
-.bss                                                                                                            0
-.text._ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc                                                                 61
-.text._ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIiEEPT_PKS3_S6_S4_                    45
-.text._ZNSt20__copy_move_backwardILb0ELb1ESt26random_access_iterator_tagE13__copy_move_bIiEEPT_PKS3_S6_S4_     58
-.rodata.str1.1                                                                                                 45
-.text._ZNSt6vectorIiSaIiEE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPiS1_EEmRKi                         386
-.text._ZNSt6vectorIiSaIiEE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPiS1_EERKi                           232
-.text.startup                                                                                                 294
-.gcc_except_table                                                                                              20
-.comment                                                                                                       18
-.note.GNU-stack                                                                                                 0
-.eh_frame                                                                                                     368
-Total                                                                                                        1578
+section														size
+.group														  12
+.group														  12
+.group														  12
+.group														  12
+.group														  12
+.text														   0
+.data														   0
+.bss														   0
+.text._ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc									  72
+.text._ZNSt20__copy_move_backwardILb0ELb1ESt26random_access_iterator_tagE13__copy_move_bIiEEPT_PKS3_S6_S4_	  51
+.text._ZNSt11__copy_moveILb0ELb1ESt26random_access_iterator_tagE8__copy_mIiEEPT_PKS3_S6_S4_			  42
+.rodata.str1.1													  45
+.text._ZNSt6vectorIiSaIiEE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPiS1_EERKi				 226
+.text._ZNSt6vectorIiSaIiEE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPiS1_EEmRKi				 386
+.text.startup													 301
+.gcc_except_table												  20
+.comment													  18
+.note.GNU-stack													   0
+.eh_frame													 344
+Total														1565
 </pre><p>
 The uSTL version looks like this:
 </p><pre>
 % ls -l ustl/tes
-5704 tes
+5848 tes
 % size ustl/tes
 text	data	bss	dec	hex	filename
-2383	640	8	3031	bd7	ustl/tes
+2505	640	8	3153	c51	ustl/tes
 % size -A ustl/tes.o
-ustl/tes.o:
-section             size
-.text                  0
-.data                  0
-.bss                   0
-.text.startup        277
-.gcc_except_table     19
-.comment              18
-.note.GNU-stack        0
-.eh_frame             72
-Total                386
+.text			  0
+.data			  0
+.bss			  0
+.text.unlikely		  0
+.text.startup		273
+.gcc_except_table	 15
+.comment		 18
+.note.GNU-stack		  0
+.eh_frame		 72
+Total			378
 </pre><p>
 As you can see, the libstdc++ version instantiates quite a bit of code
 for just this one vector type, with out-of-line functions for copy, move,
@@ -658,31 +657,31 @@ executable just for container overhead.
 But wait, there is more! Let's look at the total memory footprint:
 </p><pre>
 % footprint std/tes
-   text	   data	    bss	    dec	    hex	filename
-   3522	    656	      8	   4186	   105a	tes
-  83357	    968	    664	  84989	  14bfd	libgcc_s.so.1
-1031819	   1100	     72	1032991	  fc31f	libm.so.6
- 935489	  36200	  85088	1056777	 102009	libstdc++.so.6
-1715642	  20560	  17800	1754002	 1ac392	libc.so.6
-3769829	  59484	 103632	3932945	 3c0311	(TOTALS)
+   text    data     bss     dec     hex filename
+   3464     656       8    4128    1020 tes
+  86254     976     672   87902   1575e libgcc_s.so.1
+1033970     892      12 1034874   fca7a libm.so.6
+1514876   46936   14240 1576052  180c74 libstdc++.so.6
+1678707   20344   17240 1716291  1a3043 libc.so.6
+4317271   69804   32172 4419247  436eaf (TOTALS)
 
 % footprint ustl/tes
    text	   data	    bss	    dec	    hex	filename
-   2383	    640	      8	   3031	    bd7	tes
-  83357	    968	    664	  84989	  14bfd	libgcc_s.so.1
- 151398	  10848	  73240	 235486	  397de	libustl.so.2
-1715642	  20560	  17800	1754002	 1ac392	libc.so.6
-1952780	  33016	  91712	2077508	 1fb344	(TOTALS)
+   2505     640       8    3153     c51 tes
+  86254     976     672   87902   1575e libgcc_s.so.1
+ 141262    7840     536  149638   24886 libustl.so.2
+1678707   20344   17240 1716291  1a3043 libc.so.6
+1908728   29800   18456 1956984  1ddc78 (TOTALS)
 </pre><p>
-As you can see, the footprint for the uSTL version is 47% smaller,
-saving 1855437 bytes. If you don't count libc, measuring only the
-C++-specific overhead, libstdc++ loads 2178943 while libustl only 323506,
-<em>seven times less</em>! Finally, most of uSTL's size comes from gcc's
-support libraries; if you compile uSTL configured <kbd>--with-libstdc++</kbd>
-option, then you'll see that it only takes up 72322 bytes, of which only
-23350 are used by .text, meaning that only about a third of the library
-size is my fault. gcc developers will have to reduce the size of libsupc++
-before any further size reduction would be practical.
+As you can see, the footprint for the uSTL version is less than half
+the size, saving 2.5 megabytes. If you don't count libc, measuring only
+the C++-specific overhead, std/tes loads 2.7 megabytes of libraries,
+while ustl/tes loads only 237k, <em>eleven times less</em>!
+</p><p>
+Finally, if you build a static libustl.a, it is only 33k. Linking with
+libsupc++.a adds 75k, of which 45k is ABI name demangling, only used for
+printing backtraces. Linking statically can thus lower the C++ overhead
+to less than 64k, a forty-fold reduction from libstdc++.so.
 </p><p>
 One final note concerns the current gcc versions, 4.4 and later. gcc
 developers have decided, for various reasons, to treat the inline keyword
@@ -697,8 +696,10 @@ seems inappropriate. Therefore I've pretty much given up on it. The only
 solution I can come up with is to just clobber the optimizer over the head
 with <code>#define inline __attribute__((always_inline)) inline</code>. It
 is enabled if you configure with <kbd>--force-inline</kbd>. The above
-examples are compiled with this option. Interestingly, libstdc++
-developers have taken the same approach, defining _GLIBCXX_ALWAYS_INLINE.
+examples are compiled with this option. Amusingly, libstdc++ developers
+have taken the same approach, defining _GLIBCXX_ALWAYS_INLINE. If even
+gcc developers do not trust gcc to make the correct inlining decisions,
+why the policy? Oh well...
 </p>
 <h2 id="Contact">Bug reporting</h2>
 <p>

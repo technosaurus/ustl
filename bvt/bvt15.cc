@@ -4,6 +4,7 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
+#include "../umultimap.h"
 
 typedef multimap<int,string> empmap_t;
 typedef empmap_t::const_iterator citer_t;

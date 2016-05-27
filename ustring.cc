@@ -13,7 +13,7 @@ namespace ustl {
 
 //----------------------------------------------------------------------
 
-const string::pos_type string::npos;
+/*static*/ constexpr const string::pos_type string::npos;
 
 //----------------------------------------------------------------------
 

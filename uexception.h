@@ -5,10 +5,6 @@
 
 #pragma once
 #include "utypes.h"
-#ifndef WITHOUT_LIBSTDCPP
-    #include <exception>
-    #include <new>
-#endif
 #include "bktrace.h"
 
 #if WITHOUT_LIBSTDCPP
@@ -123,5 +119,7 @@ protected:
 
 #if WITHOUT_LIBSTDCPP
 } // namespace std
-namespace ustl { typedef std::bad_alloc bad_alloc; }
+namespace ustl {
+    typedef std::bad_alloc bad_alloc;
 #endif
+} // namespace ustl
