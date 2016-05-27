@@ -4,7 +4,6 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
-#include "../umap.h"
 
 void TestMap (void)
 {

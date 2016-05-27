@@ -4,7 +4,6 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
-#include "../uheap.h"
 
 static void HeapSize (size_t nElements, size_t& layerWidth, size_t& nLayers)
 {

@@ -4,10 +4,7 @@
 // This file is free software, distributed under the MIT License.
 
 #pragma once
-#include "../uspecial.h"
-#include "../ofstream.h"
-#include "../ualgo.h"
-#include "../unumeric.h"
+#include "../ustl.h"
 using namespace ustl;
 
 typedef void (*stdtestfunc_t)(void);

@@ -4,8 +4,6 @@
 // This file is free software, distributed under the MIT License.
 
 #include "stdtest.h"
-#include "../uqueue.h"
-#include "../ustack.h"
 
 void TestStackAndQueue (void)
 {
